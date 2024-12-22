@@ -1,27 +1,26 @@
 package scene.pagesObstacles;
 
 import java.awt.Color;
-
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.SwingConstants;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
-import scene.pagesObstacles.apercu.ApercuPolygone;
-
-import javax.swing.AbstractButton;
-import javax.swing.JButton;
-import javax.swing.JColorChooser;
-import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+
+import javax.swing.AbstractButton;
+import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.JCheckBox;
-import javax.swing.event.ChangeListener;
+import javax.swing.SwingConstants;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import scene.pagesObstacles.apercu.ApercuPolygone;
 /**Classe permettant de modifier et de placer l'obstacle de type Polygone.
  * PagePolygone dérive de JPanel
  * 
@@ -34,12 +33,8 @@ public class PagePolygone extends JPanel {
 	private JButton btnPlacerObstacle;
 	/**Spinner pour modifier la position x de l'obstacle **/
 	private JSpinner spnX;
-	private JSpinner spnX_1;
 	/**Spinner pour modifier la position y de l'obstacle **/
 	private JSpinner spnY;
-	private JSpinner spnY_1;
-	/**Étiquette contenant l'aperçu de la couleur. **/
-	private JLabel lblCouleurDeLObstacle;
 	/**Bouton permettant de modifier la couleur de l'obstacle **/
 	private AbstractButton btnModifierCouleur;
 	/**Aperçu de l'obstacle. **/
@@ -48,10 +43,6 @@ public class PagePolygone extends JPanel {
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	/**JSpinner permettant de choisir le nombre de côté **/
 	private JSpinner spnNbCote;
-	/**JCheckBox permettant d'activé le mode ressort **/
-	private JCheckBox chckBoxFaireRebondir;
-	/**JSpinner permettant de choisir la constante de rappel **/
-	private JSpinner spnK;
 	/**JSPinner permettant de choisir le nombre de côté **/
 	private JSpinner spnMesureCote;
 
@@ -69,50 +60,53 @@ public class PagePolygone extends JPanel {
 		panInformations.setLayout(null);
 		
 		JLabel lblPosition = new JLabel("Position :");
-		lblPosition.setBounds(10, 34, 91, 33);
+		lblPosition.setBounds(6, 34, 93, 33);
 		lblPosition.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		panInformations.add(lblPosition);
 		
 		apercuPolygone = new ApercuPolygone();
-		apercuPolygone.setBounds(12, 42, 417, 195);
+		apercuPolygone.setBackground(Color.WHITE);
+		apercuPolygone.setBounds(12, 42, 426, 195);
 		add(apercuPolygone);
 		
 		spnX = new JSpinner();
+		spnX.setModel(new SpinnerNumberModel(50, 0, 100, 1));
 		spnX.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				majModificationObstacle();
 			}
 		});
-		spnX.setBounds(153, 44, 74, 20);
+		spnX.setBounds(155, 37, 93, 26);
 		panInformations.add(spnX);
-		
+
 		spnY = new JSpinner();
+		spnY.setModel(new SpinnerNumberModel(Integer.valueOf(100), Integer.valueOf(0), null, Integer.valueOf(1)));
 		spnY.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				majModificationObstacle();
 			}
 		});
-		spnY.setBounds(264, 44, 59, 20);
+		spnY.setBounds(264, 37, 79, 26);
 		panInformations.add(spnY);
 		
 		JLabel lblVirgule = new JLabel(",");
-		lblVirgule.setBounds(224, 51, 41, 13);
+		lblVirgule.setBounds(236, 34, 41, 33);
 		lblVirgule.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		lblVirgule.setHorizontalAlignment(SwingConstants.CENTER);
 		panInformations.add(lblVirgule);
 		
 		JLabel lblGauche = new JLabel("[");
-		lblGauche.setBounds(128, 36, 15, 26);
+		lblGauche.setBounds(143, 37, 15, 26);
 		lblGauche.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		panInformations.add(lblGauche);
 		
 		JLabel lblDroit = new JLabel("]");
-		lblDroit.setBounds(333, 29, 30, 41);
+		lblDroit.setBounds(355, 30, 30, 41);
 		lblDroit.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		panInformations.add(lblDroit);
 		
-		JLabel lblTitre = new JLabel("Polygone");
-		lblTitre.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		JLabel lblTitre = new JLabel("Polygone".toUpperCase());
+		lblTitre.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 		lblTitre.setHorizontalAlignment(SwingConstants.CENTER);
 		lblTitre.setBounds(12, 10, 426, 34);
 		add(lblTitre);
@@ -121,33 +115,12 @@ public class PagePolygone extends JPanel {
 		btnPlacerObstacle.setBounds(39, 542, 348, 28);
 		add(btnPlacerObstacle);
 		
-		spnX_1 = new JSpinner();
-		spnX_1.setBounds(153, 44, 74, 20);
-		panInformations.add(spnX_1);
-		
-		spnY_1 = new JSpinner();
-		spnY_1.setBounds(264, 44, 59, 20);
-		panInformations.add(spnY_1);
 		
 		
-		
-		JLabel lblMPosition = new JLabel("m");
-		lblMPosition.setBounds(352, 47, 45, 13);
+		JLabel lblMPosition = new JLabel("cm");
+		lblMPosition.setBounds(375, 34, 45, 33);
 		lblMPosition.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		panInformations.add(lblMPosition);
-		
-		JLabel lblCouleur = new JLabel("Couleur :");
-		lblCouleur.setBounds(10, 219, 96, 30);
-		lblCouleur.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		panInformations.add(lblCouleur);
-		
-		
-		
-		lblCouleurDeLObstacle = new JLabel("Couleur");
-		lblCouleurDeLObstacle.setBounds(108, 219, 235, 30);
-		lblCouleurDeLObstacle.setHorizontalAlignment(SwingConstants.CENTER);
-		lblCouleurDeLObstacle.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		panInformations.add(lblCouleurDeLObstacle);
 		
 		btnModifierCouleur = new JButton("Modifier la couleur");
 		btnModifierCouleur.setBounds(108, 252, 200, 30);
@@ -156,7 +129,8 @@ public class PagePolygone extends JPanel {
 				
 		Color c= JColorChooser.showDialog(null, "Choisir la couleur du polygone", null) ;
 				
-		lblCouleurDeLObstacle.setBackground(c);
+		
+		if(c!=null)
 		apercuPolygone.setCouleur(c);
 			}
 		});
@@ -165,7 +139,7 @@ public class PagePolygone extends JPanel {
 		
 		JLabel lblCote = new JLabel("Nombre de côtés :");
 		lblCote.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblCote.setBounds(10, 72, 165, 33);
+		lblCote.setBounds(6, 103, 165, 33);
 		panInformations.add(lblCote);
 		
 		spnNbCote = new JSpinner();
@@ -176,58 +150,28 @@ public class PagePolygone extends JPanel {
 		});
 		spnNbCote.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		spnNbCote.setModel(new SpinnerNumberModel(3, 3, 20, 1));
-		spnNbCote.setBounds(234, 72, 108, 31);
+		spnNbCote.setBounds(178, 104, 108, 31);
 		panInformations.add(spnNbCote);
 		
-		chckBoxFaireRebondir = new JCheckBox("Fait rebondir");
-		chckBoxFaireRebondir.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(chckBoxFaireRebondir.isEnabled()) {
-					spnK.setEnabled(true);
-				}else {
-					spnK.setEnabled(false);
-				}
-			}
-		});
-		chckBoxFaireRebondir.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		chckBoxFaireRebondir.setBounds(160, 150, 148, 20);
-		panInformations.add(chckBoxFaireRebondir);
-		
-		JLabel lblConstanteRappel = new JLabel("Constante de rappel :");
-		lblConstanteRappel.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblConstanteRappel.setBounds(20, 176, 200, 33);
-		panInformations.add(lblConstanteRappel);
-		
-		spnK = new JSpinner();
-		spnK.setModel(new SpinnerNumberModel(12, 10, 100, 1));
-		spnK.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		spnK.setBounds(235, 174, 90, 36);
-		panInformations.add(spnK);
-		
-		JLabel lblNM = new JLabel("N/m");
-		lblNM.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblNM.setBounds(333, 176, 41, 33);
-		panInformations.add(lblNM);
-		
 		spnMesureCote = new JSpinner();
-		spnMesureCote.setModel(new SpinnerNumberModel(Integer.valueOf(5), Integer.valueOf(1), null, Integer.valueOf(1)));
+		spnMesureCote.setModel(new SpinnerNumberModel(5, 1, 30, 1));
 		spnMesureCote.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				 majModificationObstacle();
 			}
 		});
 		spnMesureCote.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		spnMesureCote.setBounds(196, 113, 108, 31);
+		spnMesureCote.setBounds(196, 183, 108, 31);
 		panInformations.add(spnMesureCote);
 		
 		JLabel lblMesureCote = new JLabel("Mesure côté :");
 		lblMesureCote.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblMesureCote.setBounds(71, 111, 129, 33);
+		lblMesureCote.setBounds(6, 182, 129, 33);
 		panInformations.add(lblMesureCote);
 		
-		JLabel lblMMesureCote = new JLabel("m");
+		JLabel lblMMesureCote = new JLabel("cm");
 		lblMMesureCote.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblMMesureCote.setBounds(318, 122, 45, 22);
+		lblMMesureCote.setBounds(318, 187, 45, 22);
 		panInformations.add(lblMMesureCote);
 		btnPlacerObstacle.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -242,6 +186,7 @@ public class PagePolygone extends JPanel {
 	//Aimé Melançon
 	public void ajoutDObstacleTable() {
 		pcs.firePropertyChange("obstacle", null, apercuPolygone.getObstacle());
+		System.out.println("Envoie !");
 	}
 	/**
 	 * voici la methode qui permettra de s'ajouter en tant qu'ecouteur
@@ -258,5 +203,8 @@ public class PagePolygone extends JPanel {
 		apercuPolygone.setNbCotes(Integer.parseInt( spnNbCote.getValue().toString()));
 		apercuPolygone.setMesureCote(Double.parseDouble( spnMesureCote.getValue().toString()));
 		apercuPolygone.setPosition(Double.parseDouble(spnX.getValue().toString()),Double.parseDouble( spnY.getValue().toString()) );
+		repaint();
+		pcs.firePropertyChange("pointeur","Ouistiti",apercuPolygone.getObstacle());
+		
 	}
 }

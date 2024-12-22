@@ -12,6 +12,8 @@ import composantDeJeu.Balle;
 import interfaces.Dessinable;
 import interfaces.Selectionnable;
 import math.vecteurs.Vecteur3D;
+import outils.GererSon;
+import outils.OutilsSon;
 
 /**
  * Cette classe représente un Trait qui sera Dessinable et Séléctionnable.
@@ -34,7 +36,13 @@ public class Trait implements Dessinable, Selectionnable, Serializable {
 	private Color couleur ;
 	/** Vecteur directeur du trait. **/
 	private Vecteur3D vecteurDirecteur ;
-	
+	/** OutilsSon de l'obstacle**/
+	private  transient OutilsSon sonObst = new OutilsSon();
+	/**Nom du fichier du son**/
+	private final String NOM_DU_FICHIER="LesMurs.wav";
+	/**Seulement exécuté la première fois que l'application est lancé **/
+	private boolean premiereFois=true;
+
 	/**
 	 * Constructeur d'un trait.
 	 * @param x1 : Coordonnée en X du point de départ.
@@ -49,10 +57,10 @@ public class Trait implements Dessinable, Selectionnable, Serializable {
 		this.x2 = x2 ;
 		this.y2 = y2 ;
 		this.couleur = couleur ;
-		
+
 		centreX = (this.x1 + this.x2)/2 ;
 		centreY = (this.y1 + this.y2)/2 ;
-		
+
 		this.longueurTrait = Math.sqrt(Math.pow(this.x1 - this.x2, 2) + Math.pow(this.y1 - this.y2, 2)) ;
 		try {
 			vecteurDirecteur = new Vecteur3D(this.x2 - this.x1, this.y2 - y1).normalise() ;
@@ -60,7 +68,7 @@ public class Trait implements Dessinable, Selectionnable, Serializable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		creerLaGeometrie() ;
 	}
 
@@ -69,8 +77,8 @@ public class Trait implements Dessinable, Selectionnable, Serializable {
 	 * 
 	 * ATTENTION : Il faut mettre z = 0 pour le vecteur de longueur du trait comme nous travaillons 
 	 * en 2D.
-	 * @param x1 : Coordonnée en X du point de départ.
-	 * @param y1 : Coordonnée en Y du point de départ.
+	 * @param centreX : Coordonnée en X du point de départ.
+	 * @param centreY : Coordonnée en Y du point de départ.
 	 * @param longueurTrait : Longueur du trait (vectorielle pour simplifier le traitement, 
 	 * en 2D seulement)
 	 */
@@ -79,18 +87,18 @@ public class Trait implements Dessinable, Selectionnable, Serializable {
 		this.longueurTrait = longueurTrait.module() ;
 		this.centreX = centreX ;
 		this.centreY = centreY ;
-		
+
 		this.x1 = this.centreX - longueurTrait.getX()/2 ;
 		this.y1 = this.centreY - longueurTrait.getY()/2 ;
 		this.x2 = this.centreX + longueurTrait.getX()/2 ;
 		this.y2 = this.centreY + longueurTrait.getY()/2 ;
-		
+
 		try {
 			vecteurDirecteur = new Vecteur3D(this.x2 - this.x1, this.y2 - y1).normalise() ;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		creerLaGeometrie() ;
 	}
 
@@ -99,6 +107,11 @@ public class Trait implements Dessinable, Selectionnable, Serializable {
 	 */
 	// Par Elias Kassas
 	private void creerLaGeometrie() {
+		if(premiereFois) {
+			sonObst.chargerUnSonOuUneMusique(NOM_DU_FICHIER);
+			premiereFois=false;
+		}
+
 		trait = new Line2D.Double(x1, y1, x2, y2) ;
 	}
 
@@ -124,7 +137,7 @@ public class Trait implements Dessinable, Selectionnable, Serializable {
 	public boolean contient(double xPix, double yPix) {
 		return trait.ptSegDist(new Point2D.Double(xPix, yPix)) > 0 ;
 	}
-	
+
 	/**
 	 * Méthode servant à obtenir ble segment Line2D du trait.
 	 * @return Le segment Line2D du trait.
@@ -209,7 +222,7 @@ public class Trait implements Dessinable, Selectionnable, Serializable {
 		this.y2 = y2;
 		creerLaGeometrie() ;
 	}
-	
+
 	/**
 	 * Méthode servant à voir l'actuelle couleur du trait.
 	 * @return L'actuelle couleur du trait.
@@ -218,7 +231,7 @@ public class Trait implements Dessinable, Selectionnable, Serializable {
 	public Color getCouleur() {
 		return couleur;
 	}
-	
+
 	/**
 	 * Méthode servant à modifier la couleur du trait.
 	 * @param couleur : La nouvelle couleur du trait.
@@ -228,7 +241,7 @@ public class Trait implements Dessinable, Selectionnable, Serializable {
 		this.couleur = couleur;
 		creerLaGeometrie() ;
 	}
-	
+
 	/**
 	 * Méthode permettant la gestion des collisions avec un trait.
 	 * @param balle : La balle pour la collisions
@@ -236,12 +249,19 @@ public class Trait implements Dessinable, Selectionnable, Serializable {
 	 */
 	// Par Elias Kassas
 	public void collision(Balle balle) throws Exception {
-		System.out.println("On entre en collision avec un trait.") ;
-		Vecteur3D normale = new Vecteur3D(-vecteurDirecteur.getY(), vecteurDirecteur.getX()).normalise();
+		if(premiereFois) {
+			
+			if(GererSon.isAllumerFermer()) {
+				sonObst.jouerUnSon();
+				}
+			premiereFois=false;
+		}
 		
+		Vecteur3D normale = new Vecteur3D(-vecteurDirecteur.getY(), vecteurDirecteur.getX()).normalise();
+
 		Vecteur3D vitesseReflechie = balle.getVitesse().soustrait(normale.
 				multiplie(2*balle.getVitesse().prodScalaire(normale))) ;
-		
+
 		balle.setVitesse(vitesseReflechie) ;
 	}
 
@@ -253,11 +273,11 @@ public class Trait implements Dessinable, Selectionnable, Serializable {
 	 */
 	//Par Elias Kassas
 	public boolean intersection(Balle balle) {
-	    // Vérifier si le centre de la balle est à une distance suffisamment proche du segment de trait
-	    // Calculer la distance entre le centre de la balle et le segment de trait
-	    double distanceTraitBalle = trait.ptSegDist(balle.obtenirCentreX(), balle.obtenirCentreY()) ;
-	    
-	    return distanceTraitBalle <= balle.getDiametre() / 2 ;
+		// Vérifier si le centre de la balle est à une distance suffisamment proche du segment de trait
+		// Calculer la distance entre le centre de la balle et le segment de trait
+		double distanceTraitBalle = trait.ptSegDist(balle.obtenirCentreX(), balle.obtenirCentreY()) ;
+
+		return distanceTraitBalle <= Balle.getDiametre() / 2 ;
 	}
 
 	/**

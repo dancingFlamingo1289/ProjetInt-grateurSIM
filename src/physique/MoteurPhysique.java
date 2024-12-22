@@ -1,16 +1,14 @@
 package physique;
 
-import java.util.ArrayList;
-
 import math.vecteurs.Vecteur3D;
 
-/**
- * Cette classe regroupera les calculs physiques n�cessaires au mouvement des objets
+/** Cette classe regroupera les calculs physiques n�cessaires au mouvement des objets
  * des divers objets dans la sc�ne.
  * Utilise la m�thode d'int�gration num�rique d'Euler semi-implicite. 
  *  
  * @author Caroline Houle
  * @author Aimé Melançon
+ * @author Elias Kassas
  */
 public class MoteurPhysique {
 	//Constantes//
@@ -20,7 +18,7 @@ public class MoteurPhysique {
 	private static final double LUNE_G = 1.62;
 	/**La force gravitationnelle de Mercure**/
 	private static final double MERCURE_G = 3.70;
-	/**La force gravitationnelle de Venus**/
+	/**La force gravitationnelle de Vénus**/
 	private static final double VENUS_G =8.87;
 	/**La force gravitationnelle de Mars**/
 	private static final double MARS_G = 3.71;
@@ -34,25 +32,63 @@ public class MoteurPhysique {
 	private static final double NEPTUNE_G = 11.15;
 	/**La force gravitationnelle de Pluton**/
 	private static final double PLUTON_G = 0.62;
-	/** tolerance utilisee dans les comparaisons reelles avec zero**/
+	/** Tolérance utilisée dans les comparaisons réelles avec zéro**/
 	private static final double EPSILON = 1e-10;
 	/**Constante de la gravitation universelle. **/
 	private static final double GRAND_G = 6.67e-11;
-	
+
 	//Variables//
-	/**La constante gravitationnelle variable**/
+	/** La constante gravitationnelle variable **/
 	private  static double g = ACCEL_G;
-	/**L'angle de la force gravitationnelle conservé pour la force normale.**/
-	private static double AngleForceGrav;
-	/**La normale de l'objet en mouvement **/
+	/** L'angle de la force gravitationnelle conservé pour la force normale. **/
+	private static double angleForceGrav;
+	/** La normale de l'objet en mouvement **/
 	private static double normale;
-	/**La somme des forces stockée dans un ArrayList **/
-	//private static ArrayList<Vecteur3D>  sommeDesForces= new ArrayList<Vecteur3D>(); 
-	
+
 	/**
-	 * Calcule et retourne l'acceleration en utilisant F=ma
-	 * @param sommeDesForces Somme des forces appliquees
-	 * @param masse Masse del'objet
+	 * Méthode permettant de faire la conversion d'unités en centimètres vers des unités en mètres.
+	 * @param vecteurEnCm : Le vecteur contenant des composantes en centimètres au numérateur.
+	 * @return Le même vecteur avec des unités en mètres au numérateur.
+	 */
+	// Par Elias Kassas
+	public static Vecteur3D convertirCentimetresEnMetres(Vecteur3D vecteurEnCm) {
+		return Vecteur3D.multiplie(vecteurEnCm, 1.0/100.0) ;
+	}
+
+	/**
+	 * Méthode permettant de faire la conversion d'unités en centimètres vers des unités en mètres.
+	 * @param valEnCm : La contenant des coordonnées en centimètres au numérateur.
+	 * @return La même valeur avec des unités en mètres au dénominateur.
+	 */
+	// Par Elias Kassas
+	public static double convertirCentimetresEnMetres(double valEnCm) {
+		return valEnCm/100.0 ;
+	}
+
+	/**
+	 * Méthode permettant de faire la conversion d'unités en mètres vers des unités en centimètres.
+	 * @param vecteurEnM : Le vecteur contenant des coordonnées en mètres au numérateur.
+	 * @return Le même vecteur avec des unités en centimètres au dénominateur.
+	 */
+	// Par Elias Kassas
+	public static Vecteur3D convertirMetresEnCentimetres(Vecteur3D vecteurEnM) {
+		return Vecteur3D.multiplie(vecteurEnM, 100.0) ;
+	}
+
+	/**
+	 * Méthode permettant de faire la conversion d'unités en mètres vers des unités en centimètres.
+	 * @param valEnM : La contenant des coordonnées en centimètres au numérateur.
+	 * @return La même valeur avec des unités en centimètres au dénominateur.
+	 */
+	// Par Elias Kassas
+	public static double convertirMetresEnCentimetres(double valEnM) {
+		return valEnM*100.0 ;
+	}
+
+	/**
+	 * Calcule et retourne l'accélération en utilisant F=ma
+	 * @param sommeDesForces Somme des forces appliquées
+	 * @param masse Masse de l'objet
 	 * @return l'acceletation F/m
 	 * @throws Exception Erreur si la masse est pratiquement nulle
 	 */
@@ -97,18 +133,19 @@ public class MoteurPhysique {
 	}
 
 	/**
-	 * Forme et retourne un vecteur exprimant la force gravitationnelle sur la Terre s'appliquant sur un objet dont la masse est passee en parametre.
+	 * Forme et retourne un vecteur exprimant la force gravitationnelle sur la Terre s'appliquant sur un objet dont la masse est passée en parametre.
 	 * @param masse Masse de l'objet
 	 * @param angle L'angle de la force
-	 * @return Un vecteur repr�sentant la force gravitationnelle exercee
+	 * @return Un vecteur représentant la force gravitationnelle exercée
 	 */
 	//Aimé Melançon
 	public static Vecteur3D calculForceGrav(double masse, double angle) {
-		return new Vecteur3D( 0, g*masse*Math.sin(angle));
+		return new Vecteur3D(0, g*masse*Math.sin(angle));
 
 	}
 
-	/**Méthode permettant de récupérer la constante de gravitation sélectionné.
+	/**
+	 * Méthode permettant de récupérer la constante de gravitation sélectionnée.
 	 * 
 	 * @return g La variable de gravitation
 	 */
@@ -117,16 +154,15 @@ public class MoteurPhysique {
 		return g;
 	}
 
-	/**Methode qui met à jour la constante de gravitation.
+	/**
+	 * Méthode qui met à jour la constante de gravitation.
 	 * 
 	 * @param gPlanete Le nom de la planète
 	 * @throws Exception Envoie l'exception en cas d'erreur d'écriture du nom de l'astre
 	 */
 	//Aimé Melançon
 	public static void setG(String gPlanete) throws Exception {
-
 		switch(gPlanete) {
-
 		case("Terre"):
 			g=ACCEL_G;
 		break;
@@ -161,10 +197,11 @@ public class MoteurPhysique {
 			throw new Exception("Erreur de constante de gravitation");
 		}
 	}
-	/**Forme et retourne un vecteur de type Vecteur3D illustrant la force de frottement.
+	/**
+	 * Forme et retourne un vecteur de type Vecteur3D illustrant la force de frottement.
 	 * 
 	 * @param masse masse de l'objet en mouvement
-	 * @param coefficientDeFrottement Le coefficient de frottement (μ) <mue> 
+	 * @param coefficientDeFrottement Le coefficient de frottement (μ) 
 	 * @param VecVitesse Le vecteur vitesse de l'objet en mouvement
 	 * @return Un vecteur représentant la force de frottement exercée
 	 * @throws Exception Exception pour la normalisation d'un vecteur nul
@@ -172,15 +209,15 @@ public class MoteurPhysique {
 	//Aimé Melançon
 	public static Vecteur3D calculForceFrottement(double masse,double coefficientDeFrottement, 
 			Vecteur3D vecVitesse) throws Exception {
-		normale= masse*g*Math.cos(AngleForceGrav);
+		normale= masse*g*Math.cos(angleForceGrav);
 
-		Vecteur3D forceFrottement= vecVitesse.normalise().multiplie(
+		Vecteur3D forceFrottement = convertirCentimetresEnMetres(vecVitesse).normalise().multiplie(
 				-coefficientDeFrottement*normale);
 		return forceFrottement;
 	}
 
-	/**Méthode permettant d'effectuer la somme des forces.
-	 * 
+	/**
+	 * Méthode permettant d'effectuer la somme des forces.
 	 * @param forces L'ArrayList contenant les forces
 	 * @return Retourne la somme des forces en nouveau Vecteur3D
 	 */
@@ -192,11 +229,10 @@ public class MoteurPhysique {
 		}
 		sommeDesForces = forces;
 		return somme;
-
 	}*/
 
-	/**Méthode qui forme un vecteur de type Vecteur3D illustrant la force magnétique.
-	 * 
+	/**
+	 * Méthode qui forme un vecteur de type Vecteur3D illustrant la force magnétique.
 	 * @param champMagnetique Le vecteur du champ magnétique
 	 * @param vecVit Le vecteur vitesse
 	 * @param charge La charge 
@@ -205,7 +241,7 @@ public class MoteurPhysique {
 	//Aimé Melançon
 	public static Vecteur3D forceMagnetique(Vecteur3D champMagnetique, Vecteur3D vecVit, 
 			double charge) {
-		Vecteur3D force = vecVit.prodVectoriel(champMagnetique);
+		Vecteur3D force = convertirCentimetresEnMetres(vecVit).prodVectoriel(champMagnetique);
 
 		return force.multiplie(charge) ;
 	}
@@ -213,13 +249,13 @@ public class MoteurPhysique {
 	/**
 	 * Méthode permettant de calculer la force du ressort.
 	 * 
-	 * @param k Constante de rappel du ressort/pare-chocs
-	 * @param e Vecteur étirement ou compression du pare-chocs
+	 * @param constanteDeRappel Constante de rappel du ressort/pare-chocs en N/m.
+	 * @param VecEtirOuCompress Vecteur étirement ou compression du pare-chocs en cm
 	 * @return Force de rappel
 	 */
 	//Aimé Melançon
 	public static Vecteur3D forceDuRessort(double constanteDeRappel, Vecteur3D VecEtirOuCompress) {		
-		return VecEtirOuCompress.multiplie(-constanteDeRappel);
+		return convertirCentimetresEnMetres(VecEtirOuCompress).multiplie(-constanteDeRappel);
 	}
 
 	/**
@@ -241,21 +277,23 @@ public class MoteurPhysique {
 	 */
 	//Aimé Melançon
 	public static double energieGravitationnelle(double masse, Vecteur3D position) {
-		return masse*g*position.getY();
+		return masse*g*convertirCentimetresEnMetres(position).getY();
 	}
 
-	/**Méthode permettant de calculer l'énergie potentielle du ressort
+	/**
+	 * Méthode permettant de calculer l'énergie potentielle du ressort
 	 * 
 	 * @param k constante des ressorts
-	 * @param e déformation des ressorts
+	 * @param e déformation des ressorts en cm
 	 * @return L'énergie potentielle des ressorts
 	 */
 	//Aimé Melançon
 	public static double energieRessort(double k, Vecteur3D e) {
-		return 1/2*k*Math.pow(e.module(), 2);
+		return 1/2*k*Math.pow(convertirCentimetresEnMetres(e).module(), 2);
 	}
 
-	/**Méthode permettant de calculer la force gravitationnelle générale.
+	/**
+	 * Méthode permettant de calculer la force gravitationnelle générale.
 	 * 
 	 * @param masseA Masse qui subit l'influence du champ gravitationnel (kg)
 	 * @param masseB Masse qui produit le champ gravitationnel (kg)
@@ -265,28 +303,28 @@ public class MoteurPhysique {
 	 */
 	//Aimé Melançon
 	public static Vecteur3D forceGravitationnelleGenerale(double masseA, double masseB, double distance, Vecteur3D rVec) {
-		return rVec.multiplie(-(GRAND_G*(masseA*masseB)/Math.pow(distance,2)));
+		return rVec.multiplie(-(GRAND_G*(masseA*masseB)/Math.pow(convertirCentimetresEnMetres(distance),2)));
 
 	}
 
 	/**
 	 * Méthode permettant de calculer le champ gravitationnel.
 	 * 
-	 * @param M Masse qui produit le champ gravitationnel (kg)
-	 * @param r Distance entre deux objets
+	 * @param masse Masse qui produit le champ gravitationnel (kg)
+	 * @param rdistance Distance entre deux objets en cm
 	 * @param rVec Vecteur unitaire de M (source) à m (cible)
 	 * @return Champ gravitationnel produit par M (N/kg)
 	 */
 	//Aimé Melançon
 	public static Vecteur3D champGravitationnel(double masse, double distance, Vecteur3D rVec) {
-		return rVec.multiplie(-GRAND_G*(masse/Math.pow(distance, 2)));
+		return rVec.multiplie(-GRAND_G*(masse/Math.pow(convertirCentimetresEnMetres(distance), 2)));
 	}
-	
+
 	/**
 	 * Méthode permettant de calculer le déplacement du flipper. 
 	 * @param angleDepart L'angle de repos du flipper
 	 * @param vitesseDeRotationMax La vitesse maximum de rotation du flipper
-	 * @param temps Le delta du temps qui permet d'évoluer dans le temps 
+	 * @param temps Le delta t qui permet d'évoluer dans le temps 
 	 * @param accelRotation L'accélération de rotation
 	 * @return Retourne la nouvelle position dans l'angle du flipper
 	 * @throws Exception L'exception de la méthode pour fonctionner.
@@ -299,11 +337,11 @@ public class MoteurPhysique {
 			throw new Exception("L'accélération de rotation n'est pas conforme.");
 		}
 	}
-	
+
 	/**
 	 * Méthode permettant de calculer la nouvelle vitesse angulaire
 	 * @param vitesseAngu La vitesse angulaire initiale en rad/s
-	 * @param accelAngu L'accélération angulaire en rad/s*s
+	 * @param accelAngu L'accélération angulaire en rad/s^2
 	 * @param deltaT La différence de temps
 	 * @return La valeur de la vitesse angulaire résultante
 	 */
@@ -311,7 +349,7 @@ public class MoteurPhysique {
 	public static double vitesseAngulaire(double vitesseAngu, double accelAngu, double deltaT) {
 		return vitesseAngu + accelAngu*deltaT;
 	}
-	
+
 	/**
 	 * Méthode permettant de calculer une nouvelle position angulaire
 	 * @param positionAngu La position angulaire initiale en rad
@@ -323,23 +361,5 @@ public class MoteurPhysique {
 	//Félix Lefrançois
 	public static double positionAngu(double positionAngu, double vitesseAngu, double accelAngu, double deltaT) {
 		return positionAngu + vitesseAngu*deltaT + 1/2*accelAngu*deltaT*deltaT;
-	}
-	/**
-	 * Méthode permettant de convertir des centimètres en mètres.
-	 * @param cm Le nombre de centimètre désiré à convertir
-	 * @return Des mètres !
-	 */
-	//Aimé Melançon
-	public static double cmEnM(double cm) {
-		return cm/100;
-	}
-	/**
-	 * Méthode permettant de convertir des mètres en centimètres.
-	 * @param m Le nombre de mètre à convertir en centimètre
-	 * @return Des centimètres !
-	 */
-	//Aimé Melançon
-	public static double mEnCm(double m) {
-		return m*100;
 	}
 }

@@ -12,7 +12,6 @@ import javax.swing.JPanel;
 import math.vecteurs.Vecteur3D;
 import obstacles.Obstacle;
 import obstacles.TrouNoir;
-import obstacles.polygone.Polygone;
 /**Classe pour avoir un apperçu des modification du Trou Noir
  * ApercuTrouNoir dérive de JPanel
  * 
@@ -34,7 +33,7 @@ public class ApercuTrouNoir extends JPanel {
 	/**Position milieu du panneau **/
 	private  Vecteur3D vecMilieu;
 	/**Position de l'objet sur la table **/
-	private Vecteur3D position= new Vecteur3D(0,0);;
+	private Vecteur3D position= new Vecteur3D(50,100);
 	/**La valeur de la couleur de l'obstacle **/
 	private Color couleur = Color.gray;
 	/** La masse de l'obstacle**/
@@ -81,7 +80,8 @@ public class ApercuTrouNoir extends JPanel {
 		return position;
 	}
 	/**Méthode permettant de changer la position de l'obstacle
-	 * @param position la nouvelle position
+	 * @param x le nouveau x
+	 * @param y le nouveau y
 	 */
 	//Aimé Melançon
 	public void setPosition(double x, double y) {
@@ -128,7 +128,7 @@ public class ApercuTrouNoir extends JPanel {
 		return diametre;
 	}
 	/**Méthode permettant de changer le rayon de l'obstacle.
-	 * @param rayon Le nouveau diamètre
+	 * @param diametre Le nouveau diamètre
 	 */
 	//Aimé Melançon
 	public void setDiametre(double diametre) {

@@ -9,7 +9,6 @@ import java.beans.PropertyChangeSupport;
 import javax.swing.JPanel;
 
 import math.vecteurs.Vecteur3D;
-import obstacles.Mur;
 import obstacles.Obstacle;
 import obstacles.plaqueMagnetique.PlaqueMagnetique;
 /**Classe pour avoir un apperçu des modification du Plaque Magnetique
@@ -33,7 +32,7 @@ public class ApercuPlaqueMagnetique extends JPanel {
 	/**Position milieu du panneau **/
 	private  Vecteur3D vecMilieu;
 	/**Position de l'objet sur la table **/
-	private Vecteur3D position= new Vecteur3D(0,0);;
+	private Vecteur3D position= new Vecteur3D(50,100);
 	/**La valeur de la couleur de l'obstacle **/
 	private Color couleur = Color.gray;
 	/** Module du champ magnétique d'une zone de champ magnétique. **/
@@ -76,7 +75,8 @@ public class ApercuPlaqueMagnetique extends JPanel {
 		return position;
 	}
 	/**Méthode permettant de changer la position de l'obstacle
-	 * @param position la nouvelle position
+	 * @param x le nouveau x
+	 * @param y le nouveau y
 	 */
 	//Aimé Melançon
 	public void setPosition(double x, double y) {

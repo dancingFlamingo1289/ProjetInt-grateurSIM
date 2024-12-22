@@ -28,7 +28,7 @@ public class ApercuMur extends JPanel {
 	/**Position milieu du panneau **/
 	private  Vecteur3D vecMilieu;
 	/**Position de l'objet sur la table **/
-	private Vecteur3D position= new Vecteur3D(0,0);;
+	private Vecteur3D position= new Vecteur3D(50,100);
 	/**La valeur de la couleur de l'obstacle **/
 	private Color couleur = Color.RED;
 	/**La hauteur du mur amovible qui est en apperçu**/
@@ -74,7 +74,8 @@ public class ApercuMur extends JPanel {
 		return position;
 	}
 	/**Méthode permettant de changer la position de l'obstacle
-	 * @param position la nouvelle position
+	 * @param x La position par rapport au x de la table
+	 * @param y La position par rapport au y de la table
 	 */
 	//Aimé Melançon
 	public void setPosition(double x, double y) {

@@ -6,7 +6,6 @@ import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.io.Serializable;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 import interfaces.Dessinable;
 import math.vecteurs.FlecheVectorielle;
 import math.vecteurs.Vecteur3D;
@@ -20,22 +19,22 @@ import physique.MoteurPhysique;
 public class Balle implements Dessinable, Serializable {
 	/** Coefficient de sérialisation pour les fichiers. **/
 	private static final long serialVersionUID = 1L;
-	/** La constante de diametre d'une balle (ne varie pas)**/
+	/** La constante du diamètre d'une balle (ne varie pas)**/
 	private final static double DIAMETRE = 8.0;
 	/** La masse initiale de la balle**/
-	private double masse = 5;
+	private double masse = 1;
 	/** Vecteur position de la balle**/
 	private Vecteur3D position;
 	/** Vecteur vitesse de la vitesse**/
 	private Vecteur3D vitesse = new Vecteur3D(0,0);
 	/** Vecteur accélération de la balle**/
 	private Vecteur3D acceleration = new Vecteur3D(0,0);
-	/** Cercle qui sert de corps à la balle**/
-	private Ellipse2D.Double cercle;
+	/** Cercles qui servent de corps à la balle**/
+	private Ellipse2D.Double cercle, cercle2, cercleCentre;
 	/** Aire de la balle**/
 	private transient Area aireBalle;
 	/** Couleur de la balle**/
-	private Color couleurBalle = Color.GRAY;
+	private Color couleurBalle;
 	/** La flèche visuelle servant à représenter la vitesse de la balle **/
 	private FlecheVectorielle flecheVitBalle;
 	/** Le coefficient de redimensionnement de la flèche visuelle de la vitesse de la balle **/
@@ -44,56 +43,105 @@ public class Balle implements Dessinable, Serializable {
 	private final Color COULEUR_FLECHE = Color.ORANGE;
 	/** La somme de toutes les forces appliquées sur la balle **/
 	private Vecteur3D sommeDesForcesSurBalle;
-	/** Les différentes forces appliquées sur la balle sous forme de Vecteur3D**/
-	private Vecteur3D forceGrav, forceFrott, forceMagn, forceGravGenerale;
+	/** Les différentes forces appliquées sur la balle sous forme de Vecteur3D **/
+	private Vecteur3D forceGrav = new Vecteur3D(0,0,0), forceFrott = new Vecteur3D(0,0,0),
+			forceMagn = new Vecteur3D(0,0,0), forceGravGenerale = new Vecteur3D(0,0,0),
+			forceVentilateur = new Vecteur3D(0,0,0), forceRessort = new Vecteur3D(0,0,0);
 	/** Le vecteur contenant l'énergie totale de la balle**/
 	private double sommeDesEnergiesSurBalle;
 	/** Les différents vecteurs d'énergie de la balle**/
 	private double energieGrav, energieCinetique;
-	/** La charge de la balle en Coulombs (C). Cette propriété est temporaire le temps que nous 
-	 * codions la classe Materiau. **/
+	/** La charge de la balle en Coulombs (C). **/
 	private double charge = -10 ;
 	/** Liste des forces appliquées sur la balle.
-	 * Ordre des forces dans la liste : {force gravitationelle, force du trou noir, force de rappel, 
-	 * force magnétique, force de frottement, force normale} **/
-	private CopyOnWriteArrayList<Vecteur3D> lesForces ;
-
+	 * Ordre des forces dans la liste : {force gravitationelle, force du trou noir, force magnétique, 
+	 * force de frottement, forceVentilateur} **/
+	private CopyOnWriteArrayList<Vecteur3D> lesForces;
+	/** Les compteurs pour vérifier si il y a eu un changement dans les forces lors d'un deltaT **/
+	private int compteurGrav =0, compteurVentilateur = 0, compteurMagnetique = 0,compteurRessort = 0;
+	/** Compteur de réinitialisation de la balle **/
+	private int compteurReini = 0;
+	/** L'incertitude reliée à la réinitialisation automatique de la scene */
+	private final int INCERTITUDE_REINI = 3;
+	/** La diminution du rayon des cercles intérieur**/
+	private final int DIMINUTION_DIAM = 1;
+	
 	/**
-	 * Constructeur de la classe Balle
+	 * Constructeur de la Balle
 	 * @param position Vecteur position de la balle lorsqu'elle est créée
-	 * @param masse La masse en kg de la balle (TEMPORAIREMENT DÉSACTIVÉ)
+	 * @param masse La masse en kg de la balle
+	 * @param couleurBalle La couleur de la balle
 	 */
 	//Félix Lefrançois
-	public Balle(Vecteur3D position,double masse) {
+	public Balle(Vecteur3D position, double masse, Color couleurBalle) {
 		this.position = position;
 		this.masse = masse;
-		this.vitesse = new Vecteur3D(5, -100, 0) ;
+		this.vitesse = new Vecteur3D(0,0,0);
+		this.couleurBalle = couleurBalle;
+
+		lesForces = new CopyOnWriteArrayList<Vecteur3D>();
+		lesForces.add(forceGrav);
+		lesForces.add(forceGravGenerale);
+		lesForces.add(forceRessort);
+		lesForces.add(forceMagn);
+		lesForces.add(forceFrott);
+		lesForces.add(forceVentilateur);
 		creerLaGeometrie();
 	}
 
 	/**
+	 * Constructeur d'une à partir d'une autre balle
+	 * @param balleCopiee La balle copiée
+	 */
+	//Félix Lefrançois
+	public Balle(Balle balleCopiee) {
+		this.position = balleCopiee.getPosition();
+		this.vitesse = balleCopiee.getVitesse();
+		this.acceleration = balleCopiee.getAcceleration();
+		this.masse = balleCopiee.getMasse();
+		this.couleurBalle = balleCopiee.getCouleurBalle();
+		
+		lesForces = new CopyOnWriteArrayList<Vecteur3D>();
+		lesForces.add(forceGrav);
+		lesForces.add(forceGravGenerale);
+		lesForces.add(forceRessort);
+		lesForces.add(forceMagn);
+		lesForces.add(forceFrott);
+		lesForces.add(forceVentilateur);
+		creerLaGeometrie();
+	}
+	
+	/**
 	 * Création de la géométrie de la balle
 	 */
 	//Félix Lefrançois
-	public void creerLaGeometrie() {
+	private void creerLaGeometrie() {
 		cercle = new Ellipse2D.Double(position.getX(), position.getY(), DIAMETRE, DIAMETRE);
+		cercle2 = new Ellipse2D.Double(position.getX()+DIMINUTION_DIAM, position.getY()+DIMINUTION_DIAM, DIAMETRE-2*DIMINUTION_DIAM,DIAMETRE-2*DIMINUTION_DIAM);
+		cercleCentre = new Ellipse2D.Double(position.getX()+2*DIMINUTION_DIAM, position.getY()+2*DIMINUTION_DIAM,DIAMETRE-4*DIMINUTION_DIAM,DIAMETRE-4*DIMINUTION_DIAM);
 		aireBalle = new Area(cercle);
 		flecheVitBalle = new FlecheVectorielle(position.getX()+DIAMETRE/2, position.getY()+DIAMETRE/2,vitesse);
 		flecheVitBalle.redimensionneCorps(COEF_REDIM);
 	}
-
-
-	@Override
+	
 	/**
-	 * Methode de dessin d'un objet de type Balle
-	 * @param Contexte graphique
+	 * Méthode de dessin d'un objet de type Balle
+	 * @param g2d Contexte graphique
 	 */
 	//Félix Lefrançois
+	@Override
 	public void dessiner(Graphics2D g2d) {
 		Graphics2D g2dPrive = (Graphics2D) g2d.create();
 
+		if (aireBalle == null) 
+			creerLaGeometrie() ;
+		
 		g2dPrive.setColor(couleurBalle);
 		g2dPrive.fill(aireBalle);
+		g2dPrive.setColor(couleurBalle.darker());
+		g2dPrive.fill(cercle2);
+		g2dPrive.setColor(couleurBalle.darker().darker());
+		g2dPrive.fill(cercleCentre);
 
 		g2dPrive.setColor(COULEUR_FLECHE);
 		flecheVitBalle.dessiner(g2dPrive);
@@ -110,6 +158,38 @@ public class Balle implements Dessinable, Serializable {
 		position = MoteurPhysique.calculPosition(deltaT, position, vitesse);
 		creerLaGeometrie();
 	}
+	
+	/**
+	 * Méthode permettant de vérifier si une balle peut être réinitialisée ou non
+	 * @return Un nombre confirmant si le module de la vitesse a été en-dessous de 4 pendant 600 ms
+	 */
+	//Félix Lefrançois
+	public int reinitialiserAutomatiquement() {
+		if (vitesse.module() <= INCERTITUDE_REINI) {
+			compteurReini++;
+		} else {
+			compteurReini = 0;
+		}
+		return compteurReini;
+	}
+	
+	/**
+	 * Méthode vérifiant si il y a une collision avec une autre balle
+	 * @param balleTestee La balle testée
+	 */
+	//Félix Lefrançois
+	public boolean verifierCollisionBalle(Balle balleTestee) {
+		boolean verification = false;
+		Area copieAireBalle = aireBalle;
+		Area copieAireBalleTestee = balleTestee.getAireBalle();
+		
+		copieAireBalle.intersect(copieAireBalleTestee);
+		if (!copieAireBalle.isEmpty()) {
+			verification = true;
+		}
+		creerLaGeometrie();
+		return verification;
+	}
 
 	/**
 	 * Méthode modifiant l'accélération de la balle grâce à la somme des forces (Équation F=ma)
@@ -124,25 +204,54 @@ public class Balle implements Dessinable, Serializable {
 	}
 
 	/**
-	 * Méthode permettant de calculer les forces appliquées sur la balle en tout temps
+	 * Méthode permettant de calculer les forces appliquées sur la balle
 	 * @param angle L'angle d'inclinaison de la table
 	 * @param coefFrot Le coefficient de frottement de la surface de la table
 	 * @throws Exception Si le vecteur ne peut être normalisée puisqu'il est de longueur trop petite ou nulle
 	 */
 	//Félix Lefrançois
-	public Vecteur3D calculerSommeDesForcesConstantes(double angle, double coefFrot) throws Exception {
+	public Vecteur3D calculerSommeDesForces(double angle, double coefFrot) throws Exception {
 		forceGrav = MoteurPhysique.calculForceGrav(masse, angle);
 		sommeDesForcesSurBalle = forceGrav;
+		
+		if (compteurMagnetique > 0) {
+			sommeDesForcesSurBalle = sommeDesForcesSurBalle.additionne(forceMagn);
+			compteurMagnetique =0;
+		} else {
+			forceMagn = new Vecteur3D(0,0,0);
+		}
+		
+		if (compteurGrav > 0) {
+			sommeDesForcesSurBalle = sommeDesForcesSurBalle.additionne(forceGravGenerale);
+			compteurMagnetique =0;
+		} else {
+			forceGravGenerale = new Vecteur3D(0,0,0);
+		}
+		
+		if (compteurVentilateur > 0) {
+			sommeDesForcesSurBalle = sommeDesForcesSurBalle.additionne(forceVentilateur);
+			compteurVentilateur =0;
+		} else {
+			forceVentilateur = new Vecteur3D(0,0,0);
+		}
+		if (compteurRessort > 0) {
+			sommeDesForcesSurBalle = sommeDesForcesSurBalle.additionne(forceRessort);
+			compteurRessort =0;
+		} else {
+			forceRessort = new Vecteur3D(0,0,0);
+		}
+		
 		if (vitesse.module() > 0) {
-			forceFrott = MoteurPhysique.calculForceFrottement(masse, coefFrot, this.vitesse);
+			forceFrott = MoteurPhysique.calculForceFrottement(masse, coefFrot, this.vitesse).multiplie(Math.cos(angle));
+			if (forceFrott.module() > sommeDesForcesSurBalle.module()) {
+				forceFrott = sommeDesForcesSurBalle.multiplie(-1);
+			}
 			sommeDesForcesSurBalle = sommeDesForcesSurBalle.additionne(forceFrott);
 		}
-		forceMagn = new Vecteur3D(0,0,0);
-		forceGravGenerale = new Vecteur3D(0,0,0);
 
 		return sommeDesForcesSurBalle;
 	}
-
+	
 	/**
 	 * Méthode permettant d'appliquer des forces extérieures sur la balle
 	 * @param forceAppliquee La force appliquee sur la balle
@@ -150,6 +259,46 @@ public class Balle implements Dessinable, Serializable {
 	//Félix Lefrançois
 	public void ajouterASommeDesForces(Vecteur3D forceAppliquee) {
 		sommeDesForcesSurBalle = sommeDesForcesSurBalle.additionne(forceAppliquee);
+	}
+	
+	/**
+	 * Méthode permettant d'ajouter une force à la somme des forces graviationnelles générales
+	 * @param nouvelleForce La nouvelle force gravitationnelle générale ajoutée
+	 */
+	//Félix Lefrançois
+	public void ajouterAForceGravGen(Vecteur3D nouvelleForce) {
+		forceGravGenerale = forceGravGenerale.additionne(nouvelleForce);
+		compteurGrav +=1;
+	}
+	
+	/**
+	 * Méthode permettant d'ajouter une force à la somme des forces magnétiques 
+	 * @param nouvelleForce La nouvelle force magnétique ajoutée
+	 */
+	//Félix Lefrançois
+	public void ajouterAForceMagnetique(Vecteur3D nouvelleForce) {
+		forceMagn = forceMagn.additionne(nouvelleForce);
+		compteurMagnetique +=1;
+	}
+	
+	/**
+	 * Méthode permettant d'ajouter une force à la sommes des forces des ventilateurs
+	 * @param nouvelleForce La nouvelle force du ventilateur ajoutée
+	 */
+	//Félix Lefrançois
+	public void ajouterAForceVentilateur(Vecteur3D nouvelleForce) {
+		forceVentilateur = forceVentilateur.additionne(nouvelleForce);
+		compteurVentilateur +=1;
+	}
+	
+	/**
+	 * Méthode permettant d'ajouter une force à la sommes des forces de ressort
+	 * @param nouvelleForce La nouvelle force du ressort ajoutée
+	 */
+	//Félix Lefrançois
+	public void ajouterAForceRessort(Vecteur3D nouvelleForce) {
+		forceRessort = forceRessort.additionne(nouvelleForce);
+		compteurRessort +=1;
 	}
 
 	/**
@@ -161,11 +310,23 @@ public class Balle implements Dessinable, Serializable {
 	//Félix Lefrançois
 	public double calculSommeDesEnergies(double angle, double coefFrot) {
 		energieCinetique = MoteurPhysique.energieCinetique(vitesse, masse);
-		energieGrav = MoteurPhysique.energieGravitationnelle(masse, new Vecteur3D(obtenirCentreX(),obtenirCentreY()));
+		energieGrav = MoteurPhysique.energieGravitationnelle(masse, new Vecteur3D(obtenirCentreX(),
+				obtenirCentreY()));
 		sommeDesEnergiesSurBalle = energieCinetique + energieGrav;
 		return sommeDesEnergiesSurBalle;
 	}
 
+	/**
+	 * Méthode pour savoir si une coordonnée est contenue dans l'aire de la balle
+	 * @param coordX La coordonnée en x
+	 * @param coordY La coordonnée en y
+	 * @return Booléen confirmant si la coordonnée est contenue dans l'aire de la balle
+	 */
+	//Félix Lefrançois
+	public boolean contient(double coordX, double coordY) {
+		return aireBalle.contains(coordX, coordY);
+	}
+	
 	/**
 	 * Méthode pour obtenir la masse en kg de la balle
 	 * @return La masse en kg de la balle
@@ -219,6 +380,9 @@ public class Balle implements Dessinable, Serializable {
 	 */
 	//Félix Lefrançois
 	public Area getAireBalle() {
+		if (aireBalle == null)
+			creerLaGeometrie() ;
+		
 		return aireBalle;
 	}
 
@@ -388,8 +552,6 @@ public class Balle implements Dessinable, Serializable {
 
 	/**
 	 * Méthode permettant d'obtenir la charge de la balle.
-	 * NOTE : Cette méthode ainsi que la propriété de classe est temporaire le temps que nous 
-	 * codions la classe de Materiau pour la balle.
 	 * @return La charge de la balle.
 	 */
 	// Par Elias Kassas
@@ -405,16 +567,15 @@ public class Balle implements Dessinable, Serializable {
 	 */
 	// Par Elias Kassas
 	public CopyOnWriteArrayList<Vecteur3D> getForces() {
-		Vecteur3D[] forces = {forceGrav, forceGravGenerale, /*vecteur fR*/ new Vecteur3D(9, 9), 
-				forceMagn, forceFrott} ;
+		Vecteur3D[] forces = {forceGrav, forceGravGenerale, forceMagn, forceFrott, forceVentilateur} ;
 		lesForces = new CopyOnWriteArrayList<Vecteur3D>(forces) ;
 		
 		return this.lesForces ;
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * Méthode permettant d'obtenir la somme des forces sur la balle.
+	 * @return Le vecteur de somme des forces sur la balle.
 	 */
 	// Par Elias Kassas
 	public Vecteur3D getSommeDesForces() {

@@ -33,13 +33,14 @@ public class ApercuCercle extends JPanel {
 	/**Position milieu du panneau **/
 	private  Vecteur3D vecMilieu;
 	/**Position de l'objet sur la table **/
-	private Vecteur3D position= new Vecteur3D(0,0);;
+	private Vecteur3D position= new Vecteur3D(50,100);
 	/**La valeur de la couleur de l'obstacle **/
 	private Color couleur = Color.gray;
 	/**Le diamètre du cercle. **/
 	private double diametre=10;
 	/**Le cercle en apperçu **/
 	private Cercle cercleSacre;
+	
 	/**
 	 * Création de panneau
 	 */
@@ -48,6 +49,7 @@ public class ApercuCercle extends JPanel {
 		setLayout(null);
 		setBackground(Color.WHITE);
 	}
+	
 	/**Méthode permettant de dessiner l'aperçu de l'obstacle
 	 * @param g L'argument graphique
 	 */
@@ -66,6 +68,7 @@ public class ApercuCercle extends JPanel {
 		cercleSacre = new Cercle(vecMilieu, diametre, couleur);
 		cercleSacre.dessiner(g2d);
 	}
+	
 	/**
 	 * voici la methode qui permettra de s'ajouter en tant qu'ecouteur
 	 */
@@ -73,6 +76,7 @@ public class ApercuCercle extends JPanel {
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		this.pcs.addPropertyChangeListener(listener);
 	}
+	
 	/**Méthode permettant d'avoir le diamètre de l'obstacle
 	 * @return le diamètre
 	 */
@@ -80,14 +84,16 @@ public class ApercuCercle extends JPanel {
 	public double getDiametre() {
 		return diametre;
 	}
+	
 	/**Méthode permettant de changer le rayon de l'obstacle.
-	 * @param rayon Le nouveau diamètre
+	 * @param diametre Le nouveau diamètre
 	 */
 	//Aimé Melançon
 	public void setDiametre(double diametre) {
 		this.diametre = diametre;
 		repaint();
 	}
+	
 	/**Méthode permettant d'avoir la position.
 	 * @return La position
 	 */
@@ -95,8 +101,10 @@ public class ApercuCercle extends JPanel {
 	public Vecteur3D getPosition() {
 		return position;
 	}
+	
 	/**Méthode permettant de changer la position de l'obstacle
-	 * @param position la nouvelle position
+	* @param x le nouveau x
+	 * @param y le nouveau y
 	 */
 	//Aimé Melançon
 	public void setPosition(double x, double y) {
@@ -104,6 +112,7 @@ public class ApercuCercle extends JPanel {
 		this.position = new Vecteur3D(x,y);
 		repaint();
 	}
+	
 	/**Méthode permettant d'avoir la couleur de l'obstacle.
 	 * @return the couleur
 	 */
@@ -111,6 +120,7 @@ public class ApercuCercle extends JPanel {
 	public Color getCouleur() {
 		return couleur ;
 	}
+	
 	/**Méthode permettant de changer la couleur de l'obstacle.
 	 * @param couleur la couleur à changer.
 	 */
@@ -119,13 +129,13 @@ public class ApercuCercle extends JPanel {
 		this.couleur = couleur;
 		repaint();
 	}
+	
 	/**Méthode permettant d'avoir l'obstac
 	 * 
 	 * @return L'obstacle
 	 */
 	//Aimé Melançon
 	public Obstacle getObstacle() {
-		
 		return new Cercle(position, diametre, couleur);
 	}
 	

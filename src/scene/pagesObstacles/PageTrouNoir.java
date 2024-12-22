@@ -1,27 +1,26 @@
 package scene.pagesObstacles;
 
 import java.awt.Color;
-
-import javax.swing.JPanel;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
-import scene.pagesObstacles.apercu.ApercuTrouNoir;
-import javax.swing.border.BevelBorder;
-import javax.swing.AbstractButton;
-import javax.swing.JButton;
-import javax.swing.JColorChooser;
-import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-import javax.swing.SwingConstants;
+import javax.swing.AbstractButton;
+import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeListener;
+import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import scene.pagesObstacles.apercu.ApercuTrouNoir;
 /**Classe permettant de modifier et de placer l'obstacle de type TroiNoir.
  * PageTrouNoir dérive de JPanel
  * 
@@ -37,8 +36,6 @@ public class PageTrouNoir extends JPanel {
 	private JSpinner spnX;
 	/**Spinner pour modifier la position y de l'obstacle **/
 	private JSpinner spnY;
-	/**Étiquette contenant l'aperçu de la couleur. **/
-	private JLabel lblCouleurDeLObstacle;
 	/**Bouton permettant de modifier la couleur de l'obstacle **/
 	private AbstractButton btnModifierCouleur;
 	/**Aperçu de l'obstacle. **/
@@ -68,38 +65,39 @@ public class PageTrouNoir extends JPanel {
 		panelInfo.setLayout(null);
 		
 		JLabel lblPosition = new JLabel("Position :");
-		lblPosition.setBounds(33, 29, 89, 41);
+		lblPosition.setBounds(22, 29, 89, 41);
 		lblPosition.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblPosition.setEnabled(false);
 		panelInfo.add(lblPosition);
 		
 		spnX = new JSpinner();
+		spnX.setModel(new SpinnerNumberModel(50, 0, 100, 1));
 		spnX.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				majModificationObstacle(); 
+				majModificationObstacle();
 			}
 		});
-		spnX.setBounds(153, 44, 74, 20);
+		spnX.setBounds(138, 36, 93, 26);
 		panelInfo.add(spnX);
-		
+
 		spnY = new JSpinner();
+		spnY.setModel(new SpinnerNumberModel(Integer.valueOf(100), Integer.valueOf(0), null, Integer.valueOf(1)));
 		spnY.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				majModificationObstacle(); 
+				majModificationObstacle();
 			}
 		});
-		spnY.setBounds(264, 44, 59, 20);
+		spnY.setBounds(249, 36, 79, 26);
 		panelInfo.add(spnY);
 		
 		JLabel lblDiamètre = new JLabel("Diamètre  :");
-		lblDiamètre.setBounds(10, 103, 121, 30);
+		lblDiamètre.setBounds(22, 123, 121, 41);
 		lblDiamètre.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		panelInfo.add(lblDiamètre);
 		
 		JLabel lblVirgule = new JLabel(",");
 		lblVirgule.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		lblVirgule.setHorizontalAlignment(SwingConstants.CENTER);
-		lblVirgule.setBounds(224, 51, 41, 13);
+		lblVirgule.setBounds(224, 36, 41, 27);
 		panelInfo.add(lblVirgule);
 		
 		JLabel lblGauche = new JLabel("[");
@@ -118,18 +116,18 @@ public class PageTrouNoir extends JPanel {
 				majModificationObstacle(); 
 			}
 		});
-		spnDiam.setModel(new SpinnerNumberModel(Integer.valueOf(10), Integer.valueOf(2), null, Integer.valueOf(1)));
-		spnDiam.setBounds(115, 108, 112, 30);
+		spnDiam.setModel(new SpinnerNumberModel(10, 10, 30, 1));
+		spnDiam.setBounds(148, 128, 112, 30);
 		panelInfo.add(spnDiam);
 		
-		JLabel lblM = new JLabel("m");
+		JLabel lblM = new JLabel("cm");
 		lblM.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblM.setBounds(250, 116, 45, 13);
+		lblM.setBounds(283, 123, 45, 41);
 		panelInfo.add(lblM);
 		
 		JLabel lblMasse = new JLabel("Masse :");
 		lblMasse.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblMasse.setBounds(33, 163, 83, 30);
+		lblMasse.setBounds(22, 217, 83, 41);
 		panelInfo.add(lblMasse);
 		
 		spnMasse = new JSpinner();
@@ -139,23 +137,13 @@ public class PageTrouNoir extends JPanel {
 			}
 		});
 		spnMasse.setModel(new SpinnerNumberModel(Integer.valueOf(100), Integer.valueOf(100), null, Integer.valueOf(100)));
-		spnMasse.setBounds(135, 163, 112, 30);
+		spnMasse.setBounds(117, 222, 112, 30);
 		panelInfo.add(spnMasse);
 		
 		JLabel lblKg = new JLabel("Kg");
 		lblKg.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblKg.setBounds(264, 159, 41, 30);
+		lblKg.setBounds(247, 222, 41, 30);
 		panelInfo.add(lblKg);
-		
-		JLabel lblCouleur = new JLabel("Couleur :");
-		lblCouleur.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblCouleur.setBounds(26, 226, 96, 30);
-		panelInfo.add(lblCouleur);
-		
-		lblCouleurDeLObstacle = new JLabel("Couleur");
-		lblCouleurDeLObstacle.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblCouleurDeLObstacle.setBounds(128, 226, 235, 30);
-		panelInfo.add(lblCouleurDeLObstacle);
 		
 		btnModifierCouleur = new JButton("Modifier la couleur");
 		btnModifierCouleur.addActionListener(new ActionListener() {
@@ -163,7 +151,8 @@ public class PageTrouNoir extends JPanel {
 				
 		Color c= JColorChooser.showDialog(null, "Choisir la couleur du trou noir", null) ;
 				
-		lblCouleurDeLObstacle.setBackground(c);
+		
+		if(c!=null)
 		apercuTrouNoir.setCouleur(c);
 			}
 		});
@@ -171,26 +160,26 @@ public class PageTrouNoir extends JPanel {
 		btnModifierCouleur.setBounds(115, 281, 200, 30);
 		panelInfo.add(btnModifierCouleur);
 		
-		JLabel lblMPosition = new JLabel("m");
+		JLabel lblMPosition = new JLabel("cm");
 		lblMPosition.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblMPosition.setBounds(352, 47, 45, 13);
+		lblMPosition.setBounds(352, 29, 45, 41);
 		panelInfo.add(lblMPosition);
 		
 		btnPlacerObstacle= new JButton("Ajouter le trou noir");
-		btnPlacerObstacle.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		btnPlacerObstacle.setBounds(117, 544, 210, 25);
-		add(btnPlacerObstacle);
-		
-		JLabel lblTrouNoir = new JLabel("Trou noir");
-		lblTrouNoir.setBounds(97, 10, 224, 19);
-		add(lblTrouNoir);
-		lblTrouNoir.setHorizontalAlignment(SwingConstants.CENTER);
-		lblTrouNoir.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		btnPlacerObstacle.setFont(new Font("Lucida Grande", Font.BOLD, 20));
+		btnPlacerObstacle.setBounds(77, 544, 285, 25);
 		btnPlacerObstacle.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ajoutDObstacleTable();
 			}
 		});
+		add(btnPlacerObstacle);
+		
+		JLabel lblTrouNoir = new JLabel("Trou noir".toUpperCase());
+		lblTrouNoir.setBounds(97, 10, 224, 19);
+		add(lblTrouNoir);
+		lblTrouNoir.setHorizontalAlignment(SwingConstants.CENTER);
+		lblTrouNoir.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 	}
 	
 	/**
@@ -199,6 +188,7 @@ public class PageTrouNoir extends JPanel {
 	//Aimé Melançon
 	public void ajoutDObstacleTable() {
 		pcs.firePropertyChange("obstacle", null, apercuTrouNoir.getObstacle());
+		System.out.println("Envoie !");
 	}
 	
 	/**
@@ -211,6 +201,8 @@ public class PageTrouNoir extends JPanel {
 		apercuTrouNoir.setMasse(Double.parseDouble( spnMasse.getValue().toString()));
 	
 		apercuTrouNoir.setPosition(Double.parseDouble(spnX.getValue().toString()),Double.parseDouble( spnY.getValue().toString()) );
+		repaint();
+		pcs.firePropertyChange("pointeur","Ouistiti",apercuTrouNoir.getObstacle());
 	}
 	/**
 	 * voici la methode qui permettra de s'ajouter en tant qu'ecouteur

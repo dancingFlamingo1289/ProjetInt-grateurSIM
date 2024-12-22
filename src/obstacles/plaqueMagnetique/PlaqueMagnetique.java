@@ -3,17 +3,20 @@ package obstacles.plaqueMagnetique;
 import java.awt.Color;
 import java.awt.Graphics2D ;
 import java.awt.RenderingHints;
+import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
-import java.util.ArrayList ;
-
 import composantDeJeu.Balle;
 import interfaces.Dessinable ;
 import interfaces.Selectionnable ;
 import math.vecteurs.Vecteur3D;
 import obstacles.Obstacle ;
+import outils.OutilsSon;
+import scene.Scene;
+
 /**
- * 
+ * Cette classe représente une plaque magnétique.
+ * La plaque magnétique est un obstacle dessinable, sélectionnable et sérialisable.
  * @author Elias Kassas
  * @author Aimé Melançon
  */
@@ -24,7 +27,6 @@ public class PlaqueMagnetique extends Obstacle implements Dessinable, Selectionn
 	private double longueurCote ;
 	/** Cadre de la plaque magnétique. **/
 	private Rectangle2D.Double cadre ;
-
 	// Paramètres concernant la zone de champ magnétique.
 	/** Liste des zones de champ magnétique. **/
 	private ZoneDeChampMagnetique[] lesZones ;
@@ -34,6 +36,14 @@ public class PlaqueMagnetique extends Obstacle implements Dessinable, Selectionn
 	private double champMagn ;
 	/** Rayon d'attraction minimal et maximal d'une plaque magnétique. **/
 	private double rayonAttrMin, rayonAttrMax ;
+	/** Constante du nombre de points ajoutés lors d'une collision avec une plaque magnétique**/
+	private final int POINTS_AJOUTES = 5;
+	/** OutilsSon de l'obstacle**/
+	private transient OutilsSon sonObst = new OutilsSon();
+	/**Nom du fichier du son**/
+	private final String NOM_DU_FICHIER="ChampMagnetique.wav";
+	/**Seulement exécuté la première fois que l'application est lancé **/
+	private boolean premiereFois=true;
 
 	/**
 	 * Constructeur d'une plaque magnétique.
@@ -76,6 +86,11 @@ public class PlaqueMagnetique extends Obstacle implements Dessinable, Selectionn
 	// Par Elias Kassas
 	@Override
 	public void creerLaGeometrie() {
+		if(premiereFois) {
+			sonObst.chargerUnSonOuUneMusique(NOM_DU_FICHIER);
+			premiereFois=false;
+		}
+
 		cadre = new Rectangle2D.Double(position.getX() - longueurCote/2, position.getY() - longueurCote/2, 
 				longueurCote, longueurCote) ;
 
@@ -110,7 +125,8 @@ public class PlaqueMagnetique extends Obstacle implements Dessinable, Selectionn
 		// Dessiner chaque zone avec une couleur différente
 		g2dPrive.setColor(Color.black) ;
 		for (ZoneDeChampMagnetique zone : lesZones) {
-			zone.dessiner(g2dPrive) ;
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON) ;
+			zone.dessiner(g2d) ;
 		}
 	}
 
@@ -123,7 +139,6 @@ public class PlaqueMagnetique extends Obstacle implements Dessinable, Selectionn
 		for (ZoneDeChampMagnetique zone : lesZones) {
 			// On vérifie s'il y a une intersection avec l'une des zones.
 			if (zone.intersection(balle)) {
-				System.out.println("Intersection avec une zdcm dans la plaque.") ;
 				return true ;
 			}
 		}
@@ -142,8 +157,15 @@ public class PlaqueMagnetique extends Obstacle implements Dessinable, Selectionn
 			// On vérifie s'il y a une intersection avec l'une des zones pour faire la collision.
 			if (zone.intersection(balle)) {
 				zone.collision(balle) ;
+
+				if (sonObst == null) {
+					sonObst = new OutilsSon() ;
+					creerLaGeometrie() ;
+				}
 			}
 		}
+
+		Scene.getPoints().ajouterPoints(POINTS_AJOUTES);
 	}
 
 	/**
@@ -159,11 +181,15 @@ public class PlaqueMagnetique extends Obstacle implements Dessinable, Selectionn
 				", couleur = " + couleur + "]" ;
 	}
 
+	/**
+	 * Méthode permettant d'animer une plaque magnétique.
+	 * Notez qu'elle ne fait rien étant donné que la plaque magnétique n'a pas besoin d'être animée.
+	 */
 	@Override
 	public void avancerUnPas(Double deltaT) {
 		// TODO Auto-generated method stub
-
 	}
+
 	/**
 	 * Méthode permettant de faire un déplacement d'une plaque magnétique sur la table.
 	 * @param deplacement Le déplacement de l'obstacle effectué.
@@ -173,5 +199,56 @@ public class PlaqueMagnetique extends Obstacle implements Dessinable, Selectionn
 	public void setDeplacement(Vecteur3D deplacement) {
 		this.setPosition(this.position.additionne(deplacement));
 
+	}
+
+	/**
+	 * Méthode servant à réinitialiser la plaque magnétique. INUTILE
+	 */
+	// Par Elias Kassas
+	@Override
+	public void reinitialiser() {
+		// TODO Auto-generated method stub
+
+	}
+
+	/**
+	 * Méthode servant à établir l'intersection avec un autre obstacle pour le cliquer-glisser.
+	 * @return Si l'obstacle passé en paramètre intersecte la plaque.
+	 */
+	// Par Elias Kassas
+	@Override
+	public boolean intersection(Obstacle obst) {
+		// TODO Auto-generated method stub
+		Area cadreAire = new Area(cadre);
+		cadreAire.intersect(new Area(obst.getAire())) ;
+
+		boolean intersection = false ;
+		for (ZoneDeChampMagnetique zone : lesZones) {
+			intersection = zone.intersection(obst) ;
+			
+			if (intersection == true)
+				break ;
+		}
+		
+		return !cadreAire.isEmpty() || intersection ;
+	}
+
+	/**
+	 * Méthode permettant d'obtenir l'objet Area du rectangle de la boîte englobante de la plaque 
+	 * magnétique.
+	 * @return L'area du rectangle de la boîte englobante de la plaque magnétique.
+	 */
+	// Par Elias Kassas
+	@Override
+	public Area getAire() {
+		Rectangle2D.Double carrePlaque = new Rectangle2D.Double(position.getX() - longueurCote, 
+				position.getY() - longueurCote, longueurCote + rayonPhys/2, longueurCote + rayonPhys/2) ;
+		Area rh = new Area(carrePlaque) ;
+		
+		for (ZoneDeChampMagnetique z : lesZones) {
+			rh.add(z.getAire()) ;
+		} 
+		
+		return rh ;
 	}
 }

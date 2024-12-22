@@ -2,12 +2,17 @@ package obstacles;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.Area;
+
 import composantDeJeu.Balle;
 import composantDeJeu.Table;
 import gestionCollision.CollisionDesObjets;
 import interfaces.Dessinable;
 import interfaces.Selectionnable;
 import math.vecteurs.Vecteur3D;
+import outils.GererSon;
+import outils.OutilsSon;
+import scene.Scene;
 
 /**
  * Classe créant un obstacle de type Mur
@@ -17,12 +22,20 @@ import math.vecteurs.Vecteur3D;
 public class Mur extends BaseMur implements Selectionnable,Dessinable{
 	/** Identifiant de classe **/
 	private static final long serialVersionUID = 1L;
+	/** Constante du nombre de points ajoutés lors d'une collision avec un mur**/
+	private final int POINTS_AJOUTES = 200;
+	/** OutilsSon de l'obstacle**/
+	private transient OutilsSon sonObst=new OutilsSon();;
+	/**Nom du fichier du son**/
+	private final String NOM_DU_FICHIER="LesMurs.wav";
+	/** Booléen confirmant si c'est la première fois que l'on crée la géométrie **/
+	private boolean premiereFois = true;
 
 	/**
 	 * Constructeur de la classe
 	 * @param position Vecteur position du centre du mur
-	 * @param hauteur Hauteur en m du mur
-	 * @param largeur Largeur en m du mur
+	 * @param hauteur Hauteur en cm du mur
+	 * @param largeur Largeur en cm du mur
 	 * @param angle Angle de rotation en radian du mur
 	 * @param couleur Couleur du mur
 	 */
@@ -30,6 +43,7 @@ public class Mur extends BaseMur implements Selectionnable,Dessinable{
 	public Mur(Vecteur3D position, double hauteur, double largeur, double angle, Color couleur) {
 		super(position, hauteur, largeur, angle, couleur);
 		creerLaGeometrie();
+		
 	}
 	
 	/**
@@ -37,6 +51,12 @@ public class Mur extends BaseMur implements Selectionnable,Dessinable{
 	 */
 	//Félix Lefrançois
 	public void creerLaGeometrie() {
+		if (premiereFois) {
+			sonObst = new OutilsSon() ;
+			sonObst.chargerUnSonOuUneMusique(NOM_DU_FICHIER);
+			premiereFois = false;
+		}
+		
 		super.creerLaGeometrie();
 	}
 	
@@ -46,21 +66,24 @@ public class Mur extends BaseMur implements Selectionnable,Dessinable{
 	 */
 	//Félix Lefrançois
 	public void dessiner(Graphics2D g2d) {
-		super.dessiner(g2d);
+		Graphics2D g2dPrive = (Graphics2D) g2d.create();
+		super.dessiner(g2dPrive);
 	}
-
+	
 	/**
-	 * Méthode pour appliquer les effets d'une collision avec le mur sur une balle
-	 * @param balle La balle testée
-	 * @exception Exception lorsqu'un vecteur est normalisé
+	 * Méthode qui applique les changements physiques à un mur lors de l'animation
+	 * @param deltaT La différence de temps simulé
 	 */
 	//Félix Lefrançois
 	@Override
-	public void collision(Balle balle) throws Exception {
-		Vecteur3D normale = CollisionDesObjets.trouverNormaleCollisionMur(balle, Table.trouverMurLePlusProche(balle,lesMurs));
-		balle.setVitesse(CollisionDesObjets.vitesseFinaleImmobile(balle.getVitesse(),
-				normale));
-		balle.setPosition(balle.getPosition().additionne(normale));
+	public void avancerUnPas(Double deltaT) {}
+	
+	/**
+	 * Méthode inutile pour le mur, car celle-ci sert à réinatialiser l'annimation.
+	 */
+	//Aimé Melançon
+	@Override
+	public void reinitialiser() {
 	}
 	
 	/**
@@ -74,9 +97,60 @@ public class Mur extends BaseMur implements Selectionnable,Dessinable{
 	}
 	
 	/**
+	 * Méthode testant si un obstacle intersecte avec le mur
+	 * @param obst L'obstacle testé
+	 * @return Un booléen confirmant si il y a une intersection
+	 */
+	//Félix Lefrançois
+	@Override
+	public boolean intersection(Obstacle obst) {
+		Area copieAireMur = new Area(aireMur);
+		Area copieAireObstacle = new Area(obst.getAire());
+		
+		copieAireMur.intersect(copieAireObstacle);
+		return !copieAireMur.isEmpty();
+	}
+
+	/**
+	 * Méthode pour appliquer les effets d'une collision avec le mur sur une balle
+	 * @param balle La balle testée
+	 * @exception Exception lorsqu'un vecteur est normalisé
+	 */
+	//Félix Lefrançois
+	@Override
+	public void collision(Balle balle) throws Exception {
+		if (sonObst == null) {
+			premiereFois = true ;
+			creerLaGeometrie() ;
+		}
+		if(GererSon.isAllumerFermer()) {
+			sonObst.jouerUnSon();
+		}
+		
+		boolean collisionCoin = false;
+		
+		for (Cercle coin : lesCoins) {
+			if(coin.intersection(balle)) {
+				coin.collision(balle);
+				Vecteur3D normale = CollisionDesObjets.trouverNormaleCollisionCercle(balle, coin.getPosition().getX(), coin.getPosition().getY());
+				balle.setPosition(balle.getPosition().additionne(normale));
+				collisionCoin = true;
+			}
+		}
+		
+		if(!collisionCoin) {
+		    Vecteur3D normale = CollisionDesObjets.trouverNormaleCollisionMur(balle, Table.trouverMurLePlusProche(balle,lesMurs));
+		    balle.setVitesse(CollisionDesObjets.vitesseFinaleImmobile(balle.getVitesse(),
+				normale));
+		    balle.setPosition(balle.getPosition().additionne(normale));
+		    Scene.getPoints().ajouterPoints(POINTS_AJOUTES);
+		}
+	}
+	
+	/**
 	 * Méthode pour vérifier si un point est contenu dans l'aire du mur
-	 * @param x Coordonnée en x du point
-	 * @param y Coordonnée en y du point
+	 * @param xPix Coordonnée en x du point
+	 * @param yPix Coordonnée en y du point
 	 * @return Un booléen confirmant si le point est contenu dans l'aire ou non
 	 */
 	//Félix Lefrançois
@@ -84,14 +158,6 @@ public class Mur extends BaseMur implements Selectionnable,Dessinable{
 		return super.contient(xPix, yPix);
 	}
 
-	/**
-	 * Méthode qui applique les changements physiques à un mur lors de l'animation
-	 * @param deltaT La différence de temps simulé
-	 */
-	//Félix Lefrançois
-	@Override
-	public void avancerUnPas(Double deltaT) {}
-	
 	/**
 	 * Méthode résumant les caractéristiques d'un mur
 	 * @return Une chaîne de caractères résumant les caractéristiques d'un mur
@@ -109,6 +175,16 @@ public class Mur extends BaseMur implements Selectionnable,Dessinable{
 	public void setDeplacement(Vecteur3D deplacement) {
 		this.setPosition(this.position.additionne(deplacement));
 		
+	}
+	
+	/**
+	 * Méthode retournant l'aire du mur
+	 * @return L'aire du mur
+	 */
+	//Félix Lefrançois
+	@Override
+	public Area getAire() {
+		return aireMur;
 	}
 
 }

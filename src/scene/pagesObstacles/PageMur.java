@@ -1,15 +1,25 @@
 package scene.pagesObstacles;
 
-import java.awt.* ;
-import java.awt.event.* ;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-import javax.swing.* ;
-import javax.swing.border.* ;
-import scene.pagesObstacles.apercu.ApercuMur;
-import javax.swing.event.ChangeListener;
+import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import scene.pagesObstacles.apercu.ApercuMur;
 
 /**
  * Page de modification pour un mur.
@@ -46,7 +56,7 @@ public class PageMur extends JPanel {
 		setBounds(100, 100, 450, 579);
 		setLayout(null);
 
-		JLabel lblTitre = new JLabel("MUR");
+		JLabel lblTitre = new JLabel("Mur".toUpperCase());
 		lblTitre.setBounds(12, 6, 426, 25);
 		lblTitre.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 		lblTitre.setHorizontalAlignment(SwingConstants.CENTER);
@@ -59,47 +69,49 @@ public class PageMur extends JPanel {
 		panInformations.setLayout(null);
 
 		JLabel lblPosition = new JLabel("Position :");
-		lblPosition.setBounds(6, 23, 61, 16);
+		lblPosition.setBounds(6, 23, 122, 16);
 		panInformations.add(lblPosition);
 
 		JLabel lblParOuvr = new JLabel("[");
-		lblParOuvr.setBounds(140, 18, 30, 16);
+		lblParOuvr.setBounds(140, 23, 30, 16);
 		panInformations.add(lblParOuvr);
 
 		spnX = new JSpinner();
+		spnX.setModel(new SpinnerNumberModel(50, 0, 100, 1));
 		spnX.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				majModificationObstacle();
 			}
 		});
-		spnX.setBounds(156, 13, 93, 26);
+		spnX.setBounds(156, 18, 93, 26);
 		panInformations.add(spnX);
 
 		JLabel lblVirg = new JLabel(",");
-		lblVirg.setBounds(239, 18, 30, 16);
+		lblVirg.setBounds(239, 23, 30, 16);
 		panInformations.add(lblVirg);
 		lblVirg.setHorizontalAlignment(SwingConstants.CENTER);
 
 		spnY = new JSpinner();
+		spnY.setModel(new SpinnerNumberModel(100, 0, 200, 1));
 		spnY.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				majModificationObstacle();
 			}
 		});
-		spnY.setBounds(255, 13, 79, 26);
+		spnY.setBounds(255, 18, 79, 26);
 		panInformations.add(spnY);
 
 		JLabel lblParFerm = new JLabel("]");
-		lblParFerm.setBounds(316, 18, 30, 16);
+		lblParFerm.setBounds(316, 23, 30, 16);
 		panInformations.add(lblParFerm);
 		lblParFerm.setHorizontalAlignment(SwingConstants.TRAILING);
 
 		JLabel lblHaut = new JLabel("Hauteur :");
-		lblHaut.setBounds(6, 64, 61, 16);
+		lblHaut.setBounds(6, 64, 122, 16);
 		panInformations.add(lblHaut);
 
 		spnHauteur = new JSpinner();
-		spnHauteur.setModel(new SpinnerNumberModel(Integer.valueOf(10), Integer.valueOf(1), null, Integer.valueOf(1)));
+		spnHauteur.setModel(new SpinnerNumberModel(10, 5, 30, 1));
 		spnHauteur.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				majModificationObstacle();
@@ -108,26 +120,26 @@ public class PageMur extends JPanel {
 		spnHauteur.setBounds(140, 59, 85, 26);
 		panInformations.add(spnHauteur);
 
-		JLabel lblUniteM = new JLabel("m");
+		JLabel lblUniteM = new JLabel("cm");
 		lblUniteM.setBounds(245, 64, 61, 16);
 		panInformations.add(lblUniteM);
 
 		JLabel lblLargeur = new JLabel("Largeur :");
-		lblLargeur.setBounds(6, 113, 61, 16);
+		lblLargeur.setBounds(6, 113, 122, 16);
 		panInformations.add(lblLargeur);
 
 		spnLargeur = new JSpinner();
-		spnLargeur.setModel(new SpinnerNumberModel(Integer.valueOf(5), Integer.valueOf(1), null, Integer.valueOf(1)));
+		spnLargeur.setModel(new SpinnerNumberModel(5, 5, 30, 1));
 		spnLargeur.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				majModificationObstacle();
 			}
 		});
-		spnLargeur.setBounds(140, 109, 85, 26);
+		spnLargeur.setBounds(140, 108, 85, 26);
 		panInformations.add(spnLargeur);
 
-		JLabel lblUniteM_1 = new JLabel("m");
-		lblUniteM_1.setBounds(245, 114, 61, 16);
+		JLabel lblUniteM_1 = new JLabel("cm");
+		lblUniteM_1.setBounds(245, 113, 61, 16);
 		panInformations.add(lblUniteM_1);
 
 		JLabel lblAngle = new JLabel("Angle de rotation :");
@@ -141,35 +153,27 @@ public class PageMur extends JPanel {
 				majModificationObstacle();
 			}
 		});
-		spnAngle.setBounds(183, 82, 85, 26);
+		spnAngle.setBounds(140, 159, 85, 26);
 		panInformations.add(spnAngle);
 
 		JLabel lblUniteDegres = new JLabel("degrés");
 		lblUniteDegres.setBounds(245, 164, 61, 16);
 		panInformations.add(lblUniteDegres);
 
-		JLabel lblCouleur = new JLabel("Couleur : ");
-		lblCouleur.setBounds(6, 208, 61, 16);
-		panInformations.add(lblCouleur);
-
-		JLabel lblInfoCouleur = new JLabel(Color.white.toString()) ;
-		lblInfoCouleur.setBounds(79, 208, 341, 16);
-		panInformations.add(lblInfoCouleur);
-		lblInfoCouleur.setBackground(Color.WHITE);
-		lblInfoCouleur.setHorizontalAlignment(SwingConstants.CENTER);
-
 		btnChangerCouleur = new JButton("Modifier la couleur");
 		btnChangerCouleur.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Color c = JColorChooser.showDialog(null, "Choisir la couleur du mur", null) ;
+				if(c!=null) {
 				 apercuMur.setCouleur(c);
+				}
 			}
 		});
 		btnChangerCouleur.setBounds(116, 236, 194, 29);
 		panInformations.add(btnChangerCouleur);
 
-		JLabel lblUniteM_2 = new JLabel("m");
-		lblUniteM_2.setBounds(358, 18, 61, 16);
+		JLabel lblUniteM_2 = new JLabel("cm");
+		lblUniteM_2.setBounds(358, 23, 61, 16);
 		panInformations.add(lblUniteM_2);
 
 		btnAjout = new JButton("Ajouter le mur à la table");
@@ -191,8 +195,10 @@ public class PageMur extends JPanel {
 	 */
 	//Aimé Melançon
 	public void ajoutDObstacleTable() {
-		pcs.firePropertyChange("obstacle", null, apercuMur.getObstacle());
+		this.pcs.firePropertyChange("obstacle", null, apercuMur.getObstacle());
+		System.out.println("Envoie !");
 	}
+	
 	/**
 	 * Méthode permettant de mettre à jour les paramètres de l'obstacle.
 	 */
@@ -202,6 +208,8 @@ public class PageMur extends JPanel {
 		apercuMur.setHauteur(Double.parseDouble( spnHauteur.getValue().toString()));
 		apercuMur.setAngle(Math.toRadians(Double.parseDouble( spnAngle.getValue().toString())));
 		apercuMur.setPosition(Double.parseDouble( spnX.getValue().toString()),Double.parseDouble( spnY.getValue().toString()));
+		repaint();
+		pcs.firePropertyChange("pointeur","Ouistiti",apercuMur.getObstacle());
 	}
 	
 	/**

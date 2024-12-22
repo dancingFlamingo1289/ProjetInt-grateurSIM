@@ -3,16 +3,17 @@ package math.vecteurs;
 import java.io.Serializable;
 
 /**
- * La classe Vecteur permet de realiser les operations de base sur un vecteur Euclidien en deux dimensions (x,y), o� x,y et z sont les 
- * composantes du vecteur.
+ * La classe Vecteur permet de realiser les operations de base sur un vecteur Euclidien en trois dimensions 
+ * (x,y), où x,y et z sont les composantes du vecteur.
  * 
  * **ATTENTION***
- * Les identifiants x,y et z sont utilis�s dans cette classe non pas pour repr�senter
- * des position, mais bien pour repr�senter des composantes!!
+ * Les identifiants x,y et z sont utilisés dans cette classe non pas pour représenter
+ * des positions, mais bien pour représenter des composantes !!
  * 
- * Cette classe est une version 3d modifi�e et augment�e de la classe SVector3d ecrite par Simon Vezina dans le cadre du cours de physique.
+ * Cette classe est une version 3d modifiée et augmentée de la classe SVector3d écrite par Simon Vezina 
+ * dans le cadre du cours de physique.
  * 
- * @author Simon V�zina
+ * @author Simon Vézina
  * @author Caroline Houle
  * @author Aimé Melançon
  */
@@ -20,7 +21,7 @@ public class Vecteur3D implements Serializable {
 	/** Coefficient de sérialisation pour les fichiers. **/
 	private static final long serialVersionUID = 1L;
 	//champs de base
-	/**tolerance utilisee dans les comparaisons reeles avec zero **/
+	/**tolérance utilisée dans les comparaisons réeles avec zero **/
 	private static final double EPSILON = 1e-10; 
 	/**composante x du vecteur 3d **/
 	protected double x;	
@@ -30,14 +31,15 @@ public class Vecteur3D implements Serializable {
 	protected double z; 
 
 	/**
-	 * Constructeur representant un vecteur 2d aux composantes nulles
+	 * Constructeur representant un vecteur 3d aux composantes nulles
 	 */
 	//Aimé Melançon
 	public Vecteur3D(){
 		x = 0;
 		y = 0;
-		z=0;
+		z = 0 ;
 	}
+	
 	/**
 	 * Constructeur avec 3 composantes x,y,z
 	 * @param x La composante x du vecteur
@@ -50,6 +52,7 @@ public class Vecteur3D implements Serializable {
 		this.y = y;
 		this.z=z;
 	}
+	
 	/**
 	 * Constructeur avec 2 composantes x,y
 	 * @param x La composante x du vecteur.
@@ -70,7 +73,8 @@ public class Vecteur3D implements Serializable {
 	public Vecteur3D(Vecteur3D v){
 		this.x = v.x;
 		this.y = v.y;
-		this.z=z;
+		this.z= v.z;
+		
 	}
 
 	/**
@@ -118,7 +122,7 @@ public class Vecteur3D implements Serializable {
 	}
 	/**
 	 * Methode qui permet de modifier la composante z du vecteur.
-	 * @param x La nouvelle composante z
+	 * @param z La nouvelle composante z
 	 */
 	//Aimé Melançon
 	public void setZ(double z) {
@@ -157,7 +161,7 @@ public class Vecteur3D implements Serializable {
 	public void setComposantes(Vecteur3D v) {
 		this.x = v.x;
 		this.y = v.y;
-		this.z = z;
+		this.z = v.z;
 	}
 
 	/**
@@ -177,6 +181,7 @@ public class Vecteur3D implements Serializable {
 	 * Genere une chaine de caractere avec les informations du vecteur, avec un
 	 * nombre de decimales restreint
 	 * @param nbDecimales Nombre de chiffres significatifs d�sir�s
+	 * @return Retourne les composants du vecteur
 	 */
 	//Aimé Melançon
 	public String toString(int nbDecimales){

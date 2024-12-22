@@ -2,12 +2,14 @@ package obstacles;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.Area;
 import java.io.Serializable;
 
 import composantDeJeu.Balle;
 import interfaces.Dessinable;
 import interfaces.Selectionnable;
 import math.vecteurs.Vecteur3D;
+
 /**Classe mère contenant tout les obstacles et les attributs de chaque obstacle.
  * Obstacle implémente Dessinable et Selectionnable.
  * 
@@ -16,26 +18,26 @@ import math.vecteurs.Vecteur3D;
 public abstract class Obstacle implements Dessinable, Selectionnable, Serializable {
 	/** Coefficient de sérialisation pour les fichiers. **/
 	private static final long serialVersionUID = 1L ;
-	//private double xCentre, yCentre ;
-	//private double longueurBoiteEnglobante, largeurBoiteEnglobante ;
 	/**La position d'un obstacle X. **/
 	protected  Vecteur3D position;
+	/**La couleur de l'obstacle X. **/
 	protected Color couleur;
-
-
-
-	/**Constructeur de la classe abstraite Obstacle permettant de créé un obstacle.
-	 * 
+	/** L'ancienne position d'un obstacle X.*/
+	protected Vecteur3D anciennePosition;
+	
+	/**
+	 * Constructeur de la classe abstraite Obstacle permettant de créé un obstacle.
 	 * @param position La position d'un obstacle sur la table
+	 * @param couleur La couleur d'un obstacle sur la table
 	 */
 	//Aimé Melançon
 	public Obstacle(Vecteur3D position, Color couleur) {
 		this.position = position;
-		this.couleur = new Color(couleur.getRed(), couleur.getGreen(), couleur.getBlue()) ;
+		this.couleur =couleur;
 	}
 
 	/**
-	 * Permet de dessiner un Obstacle, sur le contexte graphique passe en parametre.
+	 * Permet de dessiner un Obstacle, sur le contexte graphique passe en paramètre.
 	 * @param g2d contexte graphique.
 	 */
 	//Aimé Melançon
@@ -49,11 +51,11 @@ public abstract class Obstacle implements Dessinable, Selectionnable, Serializab
 	 * @param y Coordonnée en y du point (exprimé en mètres)
 	 */
 	//Aimé Melançon
-	public abstract  boolean contient(double x, double y);
+	public abstract boolean contient(double x, double y);
 
 	/**
 	 * Méthode permettant de connaître la collision entre l'obstacle et la balle.
-	 * @param vec un vecteur 
+	 * @param balle la balle courante
 	 * @return retourne le vecteur de la collision.
 	 * @throws Exception L'exception quand un vecteur est normalisé (Pour le trou noir par exemple)
 	 */
@@ -63,7 +65,7 @@ public abstract class Obstacle implements Dessinable, Selectionnable, Serializab
 	/**
 	 * Méthode permettant de savoir s'il y a une intersection avec l'obstacle et la balle.
 	 * 
-	 * @param vecPosition Le vecteur position.  
+	 * @param balle La balle courante.  
 	 * @return Retourne un tableau d'intersection.
 	 */
 	//Aimé Melançon
@@ -74,7 +76,7 @@ public abstract class Obstacle implements Dessinable, Selectionnable, Serializab
 	 */
 	//Aimé Melançon
 	public abstract String toString();
-	
+
 	/**
 	 * Méthode permettant d'avoir la position d'un obstacle.
 	 * @return retourne la position de l'obstacle.
@@ -90,8 +92,25 @@ public abstract class Obstacle implements Dessinable, Selectionnable, Serializab
 	 */
 	//Aimé Melançon
 	public void setPosition(Vecteur3D position) {
+		//setAnciennePosition(this.position);
 		this.position = position;
 		creerLaGeometrie();
+	}
+	/**
+	 * Méthode permettant d'établir où était un obstacle avant un changement de position.
+	 * @param anciennePosition L'ancienne position
+	 */
+	//Aimé Melançon
+	public void setAnciennePosition(Vecteur3D anciennePosition) {
+		this.anciennePosition= anciennePosition;
+	}
+	/**
+	 * Méthode permettant d'avoir l'ancienne position d'un obstacle X.
+	 * @return Retourne l'ancienne position de l'obstacle X.
+	 */
+	//Aimé Melançon
+	public Vecteur3D getAnciennePosition() {
+		return this.anciennePosition;
 	}
 
 	/**
@@ -100,7 +119,7 @@ public abstract class Obstacle implements Dessinable, Selectionnable, Serializab
 	 */
 	//Aimé Melançon
 	protected abstract void creerLaGeometrie();
-	
+
 	/**Méthode publique permettant d'avoir la couleur de l'obstacle
 	 * @return La couleur actuel de l'obstacle.
 	 */
@@ -109,7 +128,7 @@ public abstract class Obstacle implements Dessinable, Selectionnable, Serializab
 		return couleur;
 	}
 	/**Méthode permettant de changer la couleur de l'obstacle;
-	 * @param couleur
+	 * @param couleur La nouvelle couleur de l'obstacle
 	 */
 	//Aimé Melançon
 	public void setCouleur(Color couleur) {
@@ -118,6 +137,7 @@ public abstract class Obstacle implements Dessinable, Selectionnable, Serializab
 	/** Méthode permettant d'aller seulement d'une image à la fois dans une animation d'un obstacle.
 	 * @param deltaT La différence entre le temps simulé
 	 */
+	//Aimé Melançon
 	public abstract void avancerUnPas(Double deltaT);
 
 	/**
@@ -129,4 +149,25 @@ public abstract class Obstacle implements Dessinable, Selectionnable, Serializab
 	/*e.i.
 	 * obstacle.setPosition(obstacle.getPosition()+deplacement);
 	 */
+	
+	/**
+	 * Méthode permettant de réinitialiser les animations des obstacles.
+	 */
+	//Aimé Melançon
+	public abstract void reinitialiser();
+
+	/**
+	 * Méthode servant de savoir s'il y a une intersection entre deux obstacles.
+	 * @param obst L'obstacle à testé s'il y a ou non une intersection
+	 * @return Vrai s'il y a une intersection et faux s'il n'y en a pas.
+	 */
+	//Aimé Melançon
+	public abstract boolean intersection(Obstacle obst);
+	
+	/**
+	 * Méthode permettant d'avoir l'aire d'un obstacle.
+	 * @return retourne l'aire de l'obstacle
+	 */
+	//Aimé Melançon
+	public abstract Area getAire();
 }

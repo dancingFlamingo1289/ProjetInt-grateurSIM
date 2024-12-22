@@ -3,6 +3,7 @@ package scene.pagesObstacles.apercu;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
@@ -10,7 +11,6 @@ import javax.swing.JPanel;
 
 import math.vecteurs.Vecteur3D;
 import obstacles.Obstacle;
-import obstacles.plaqueMagnetique.PlaqueMagnetique;
 import obstacles.polygone.Polygone;
 /**Classe pour avoir un apperçu des modification du Polygone
  * ApercuPolygone dérive de JPanel
@@ -35,7 +35,7 @@ public class ApercuPolygone extends JPanel {
 	/**Position milieu du panneau **/
 	private  Vecteur3D vecMilieu;
 	/**Position de l'objet sur la table **/
-	private Vecteur3D position= new Vecteur3D(0,0);;
+	private Vecteur3D position= new Vecteur3D(50,100);
 	/**La valeur de la couleur de l'obstacle **/
 	private Color couleur = Color.gray;
 	/**La mesure d'un côté **/
@@ -58,7 +58,7 @@ public class ApercuPolygone extends JPanel {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2d = (Graphics2D) g;
-
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON) ; 
 		if(premiereFois) {
 			pixelsParMetre= getWidth()/largeurDuComposant;
 			vecMilieu = new Vecteur3D(largeurDuComposant/2, hauteurDuComposant/2-mesureCote /2);
@@ -66,9 +66,10 @@ public class ApercuPolygone extends JPanel {
 		}
 		g2d.drawString("Position sur la table "+ position , 0,(int) 10);
 		g2d.scale(pixelsParMetre, pixelsParMetre);
-		poly = new Polygone(vecMilieu, nbCotes, mesureCote, couleur);
+		poly = new Polygone(vecMilieu, nbCotes, mesureCote, couleur, Color.black);
 		poly.dessiner(g2d);
 	}
+	
 	/**Méthode permettant d'avoir la position.
 	 * @return La position
 	 */
@@ -76,8 +77,10 @@ public class ApercuPolygone extends JPanel {
 	public Vecteur3D getPosition() {
 		return position;
 	}
+	
 	/**Méthode permettant de changer la position de l'obstacle
-	 * @param position la nouvelle position
+	 * @param x le nouveau x
+	 * @param y le nouveau y
 	 */
 	//Aimé Melançon
 	public void setPosition(double x, double y) {
@@ -85,6 +88,7 @@ public class ApercuPolygone extends JPanel {
 		this.position = new Vecteur3D(x,y);
 		repaint();
 	}
+	
 	/**Méthode permettant d'avoir la couleur de l'obstacle.
 	 * @return the couleur
 	 */
@@ -92,6 +96,7 @@ public class ApercuPolygone extends JPanel {
 	public Color getCouleur() {
 		return couleur ;
 	}
+	
 	/**Méthode permettant de changer la couleur de l'obstacle.
 	 * @param couleur la couleur à changer.
 	 */
@@ -100,6 +105,7 @@ public class ApercuPolygone extends JPanel {
 		this.couleur = couleur;
 		repaint();
 	}
+	
 	/**Méthode permettant d'avoir le nombre de côté du polygone
 	 * @return Le nbCotes
 	 */
@@ -107,6 +113,7 @@ public class ApercuPolygone extends JPanel {
 	public int getNbCotes() {
 		return nbCotes;
 	}
+	
 	/**Méthode permettant de changer le nombre de côté du polygones
 	 * @param nbCotes Le nouveau nombres de côtés
 	 */
@@ -140,6 +147,7 @@ public class ApercuPolygone extends JPanel {
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		this.pcs.addPropertyChangeListener(listener);
 	}
+	
 	/**Méthode permettant d'avoir l'obstac
 	 * 
 	 * @return L'obstacle
@@ -147,6 +155,6 @@ public class ApercuPolygone extends JPanel {
 	//Aimé Melançon
 	public Obstacle getObstacle() {
 		
-		return new Polygone(position, nbCotes, mesureCote, couleur);
+		return new Polygone(position, nbCotes, mesureCote, couleur, Color.black) ;
 	}
 }

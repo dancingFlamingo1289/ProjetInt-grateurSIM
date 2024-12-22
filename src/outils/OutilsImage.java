@@ -6,9 +6,9 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.JToggleButton;
 
-/**
- * Cette classe contient des utilitaires pour le traitement des images.
+/** Cette classe contient des utilitaires pour le traitement des images.
  * Notez les méthodes permettant de redimensionner une image.
  * @author Caroline Houle
  * @author Aimé Melançon
@@ -119,12 +119,50 @@ public class OutilsImage {
 		}
 	}//fin methode
 
+	
+	/**
+	 * Associe une image a un bouton en redimensionnant l'image adequatement. MODIFIER LEGEREMENT
+	 * @param nomFichier Le nom du fichier d'image
+	 * @param leBouton Le bouton auquel on veut associer l'image.
+	 */
+	//Caroline Houle
+	public static void lireImageEtPlacerSurBouton( String nomFichier, JToggleButton leBouton ) {
+		Image imgRedim=null;
+
+		//lire et redimensionner l'image de la meme grandeur que le bouton
+		imgRedim = lireImageEtRedimensionner(nomFichier, leBouton.getWidth(),  leBouton.getHeight() );
+
+		if (imgRedim != null) {
+			//au cas ou le fond de l�image serait transparent
+			beauteBoutonToggle(leBouton);
+
+			//associer l'image au bouton
+			leBouton.setText("");
+			leBouton.setIcon( new ImageIcon(imgRedim) );
+
+			//on se debarrasse de l'image de base
+			imgRedim.flush();
+		}
+	}//fin methode
+	
+	
 	/**
 	 * Méthode permettant de faire un beau bouton 
 	 * @param leBouton Le bouton à embellir.
 	 */
 	//Aimé Melançon
 	private static void beauteBouton(JButton leBouton) {
+		leBouton.setOpaque(true);
+		leBouton.setContentAreaFilled(true);
+		leBouton.setBorderPainted(true);
+	}
+	
+	/**
+	 * Méthode permettant de faire un beau bouton 
+	 * @param leBouton Le bouton à embellir.
+	 */
+	//Aimé Melançon
+	private static void beauteBoutonToggle(JToggleButton leBouton) {
 		leBouton.setOpaque(true);
 		leBouton.setContentAreaFilled(true);
 		leBouton.setBorderPainted(true);

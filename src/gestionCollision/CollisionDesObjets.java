@@ -3,6 +3,7 @@ package gestionCollision;
 import java.awt.geom.Line2D;
 import composantDeJeu.Balle;
 import math.vecteurs.Vecteur3D;
+import obstacles.Cercle;
 
 /**
  * Classe qui s'occupe de calculer le résultat des collisions entre les différents objets
@@ -15,6 +16,11 @@ public class CollisionDesObjets {
 	/**
 	 * Méthode permettant de calculer l'impulsion lors d'une collision entre deux
 	 * objets en mouvement
+	 * @param masseA Masse de l'objet A en kg
+	 * @param masseB masse de l'objet B en kg
+	 * @param vitesseA vecteur vitesse de l'objet A
+	 * @param vitesseB vecteur vitesse de l'objet B
+	 * @param normaleBA vecteur de la normale de B à A
 	 * @return l'impulsion appliquée selon la direction de la force normale (en Ns)
 	 */
 	//Félix Lefrançois
@@ -32,9 +38,9 @@ public class CollisionDesObjets {
 	 */
 	//Félix Lefrançois
 	public static Vecteur3D vitesseFinaleMouvementCercleImmobile(Balle balleA, double masseObjetImmo, double posX, double posY) {
-		double impulsion = impulsionCollisionMouvement(balleA.getMasse(), masseObjetImmo,balleA.getVitesse(),
-				new Vecteur3D(0,0,0),trouverNormaleCollisionCercle(balleA,posX,posY));
 		Vecteur3D normaleBA = trouverNormaleCollisionCercle(balleA,posX,posY);
+		double impulsion = impulsionCollisionMouvement(balleA.getMasse(), masseObjetImmo,balleA.getVitesse(),
+				new Vecteur3D(0,0,0),normaleBA);
 		
 		return (Vecteur3D.additionne(balleA.getVitesse(), normaleBA.multiplie(impulsion/balleA.getMasse())));
 	}
@@ -47,10 +53,26 @@ public class CollisionDesObjets {
 	 */
 	//Félix Lefrançois
 	public static Vecteur3D vitesseFinaleMouvementCercleMobile(Balle balleA, Balle balleB) {
+		Vecteur3D normaleBA = trouverNormaleCollisionCercle(balleA,balleB.obtenirCentreX(),balleB.obtenirCentreY());
 		double impulsion = impulsionCollisionMouvement(balleA.getMasse(), balleB.getMasse(),balleA.getVitesse(),
-				balleB.getVitesse(),trouverNormaleCollisionCercle(balleA,balleB.obtenirCentreX(),balleB.obtenirCentreY()));
-		Vecteur3D normaleBA = trouverNormaleCollisionCercle(balleB,balleA.obtenirCentreX(),balleA.obtenirCentreY());
+				balleB.getVitesse(),normaleBA);
+
 		return (Vecteur3D.additionne(balleA.getVitesse(), normaleBA.multiplie(impulsion/balleA.getMasse())));
+	}
+	
+	/**
+	 *  Méthode permettant de calculer la vitesse résultante d'une balle suite à une collision avec un cercle (coin)
+	 * @param balle La balle impliquée dans la collision
+	 * @param cercle Le cercle impliqué dans la collision
+	 * @param vitesseCercle La vitesse du cercle
+	 * @return Le vecteur de vitesse résultante
+	 */
+	//Félix Lefrançois
+	public static Vecteur3D vitesseFinaleMouvementObstacleCercleMobile(Balle balle, Cercle cercle, Vecteur3D vitesseCercle) {
+		Vecteur3D normale = trouverNormaleCollisionCercle(balle,cercle.getPosition().getX(),cercle.getPosition().getY());
+		double impulsion = impulsionCollisionMouvement(balle.getMasse(),cercle.getMASSE(),balle.getVitesse(),vitesseCercle,normale);
+		
+		return (Vecteur3D.additionne(balle.getVitesse(), normale.multiplie(impulsion/balle.getMasse())));
 	}
 	
 	/**
@@ -62,7 +84,7 @@ public class CollisionDesObjets {
 	 * @return La vitesse résultante de la balle
 	 */
 	//Félix Lefrançois
-	public static Vecteur3D vitesseFinaleCollisionAvecMurAmovible(Balle balle, Vecteur3D normale, Vecteur3D vitesseMur,double masse) {
+	public static Vecteur3D vitesseFinaleCollisionAvecMurMobile(Balle balle, Vecteur3D normale, Vecteur3D vitesseMur,double masse) {
 		double impulsion = impulsionCollisionMouvement(balle.getMasse(),masse, balle.getVitesse(),vitesseMur,normale);
 		
 		return (Vecteur3D.additionne(balle.getVitesse(), normale.multiplie(impulsion/balle.getMasse())));

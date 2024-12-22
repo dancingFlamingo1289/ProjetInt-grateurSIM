@@ -25,16 +25,27 @@ import javax.swing.ScrollPaneConstants;
  * @author Caroline Houle
  */
 public class PanelImagesAvecDefilement extends JPanel {
+	/**Numéro d'identifiant de classe **/
 	private static final long serialVersionUID = 1L;
-	private final int LARG_BARRE_DEFILEMENT = 20; 	//largeur en pixels qu'occupe la barre de defilement vertical
-	private int largeurCadre = 6; 			        //nombre de pixels laisses vides autour du scrollpane (prendra la couleur du fond du jpanel)
+	/**largeur en pixels qu'occupe la barre de defilement vertical **/
+	private final int LARG_BARRE_DEFILEMENT = 20; 	
+	/**nombre de pixels laisses vides autour du scrollpane (prendra la couleur du fond du jpanel) **/
+	private int largeurCadre = 6; 	
+	/**Le nom du fichier actuel **/
 	private String nomFichierCourant = null;
+	/**La barre défilante du panneau**/
 	private JScrollPane sp;
+	/**L'étiquette qui contient l'image **/
 	private JLabel lblPourContenirImage;
+	/**la variable contenant le nombre de page **/
 	private int nombrePages;
+	/**le numéro de la page actuel. **/
 	private int pageCourante=0;
+	/**La tableau contenant les images **/
 	private String[] tableauImages;
+	/**Le boolean qui sert à gérer le pas de size **/
 	private boolean pasDeSize = false;
+	/**le tableau d'icon **/
 	private ImageIcon tableauIcon[] = null;
 
 	/**
@@ -166,7 +177,7 @@ public class PanelImagesAvecDefilement extends JPanel {
 	}
 	/**
 	 * Permet de dessiner les images, sur le contexte graphique passe en parametre.
-	 * @param g2d contexte graphique.
+	 * @param g contexte graphique.
 	 */
 	//Caroline Houle
 	@Override

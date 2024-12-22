@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
+import java.awt.geom.Area;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -13,6 +14,8 @@ import interfaces.Selectionnable;
 import math.vecteurs.Vecteur3D;
 import obstacles.Cercle;
 import obstacles.Obstacle;
+import outils.OutilsSon;
+import scene.Scene;
 
 /**
  * Cette classe représente un Polygone.
@@ -39,7 +42,11 @@ public class Polygone extends Obstacle implements Dessinable, Selectionnable, Se
 	private ArrayList<Trait> lesTraits ;
 	/** Liste des cercles qui seront sur les côtés du polygone pour gèrer la collision avec un coin. **/
 	private ArrayList<Cercle> lesCercles ;
-
+	/** Couleur des traits du polygone. **/
+	private Color couleurTrait ;
+	/** Constante du nombre de points ajoutés lors d'une collision avec un polygone**/
+	private final int POINTS_AJOUTES = 200;
+	
 	/**
 	 * Constructeur d'un Polygone.
 	 * @param x : Coordonnée en X du centre du polygone.
@@ -49,12 +56,12 @@ public class Polygone extends Obstacle implements Dessinable, Selectionnable, Se
 	 * @param couleur : Couleur de l'intérieur 
 	 */
 	// Par Elias Kassas
-	public Polygone(Vecteur3D position, int nbCotes, double mesureCote, Color couleur) {
+	public Polygone(Vecteur3D position, int nbCotes, double mesureCote, Color couleur, Color coulTrait) {
 		super(position, couleur) ;
 		this.nbCotes = nbCotes ;
 		this.mesureCote = mesureCote ;
+		this.couleurTrait = coulTrait ;
 		creerLaGeometrie() ;
-		//
 	}
 
 	/**
@@ -62,6 +69,7 @@ public class Polygone extends Obstacle implements Dessinable, Selectionnable, Se
 	 */
 	// Par Elias Kassas
 	protected void creerLaGeometrie() {
+		
 		lesTraits = new ArrayList<Trait>() ;
 		lesCercles = new ArrayList<Cercle>() ;
 		
@@ -77,14 +85,14 @@ public class Polygone extends Obstacle implements Dessinable, Selectionnable, Se
 			pointsADessinerY.add(this.position.getY() + longueurApotheme * Math.sin(sommeAngles)) ;
 			
 			lesCercles.add(new Cercle(new Vecteur3D(pointsADessinerX.get(i), pointsADessinerY.get(i)), 
-					5, Color.white)) ;
+					2, Color.white)) ;
 			
 			sommeAngles += angleRotation ;
 		}
 
 		for (int n = 0 ; n < pointsADessinerX.size() - 1 && n < pointsADessinerY.size() - 1 ; n++) {
 			Trait segment = new Trait(pointsADessinerX.get(n), pointsADessinerY.get(n), 
-					pointsADessinerX.get(n + 1), pointsADessinerY.get(n + 1), Color.black) ;
+					pointsADessinerX.get(n + 1), pointsADessinerY.get(n + 1), couleurTrait) ;
 			lesTraits.add(segment) ;
 		}
 
@@ -109,6 +117,8 @@ public class Polygone extends Obstacle implements Dessinable, Selectionnable, Se
 		
 		g2dPrive.setColor(couleur) ;
 		g2dPrive.fill(polygone) ;
+		
+		g2d.draw(polygone);
 	}
 
 	/**
@@ -118,7 +128,7 @@ public class Polygone extends Obstacle implements Dessinable, Selectionnable, Se
 	private void convertirArraysEnTableaux() {
 		ptsADessinerX = new int[pointsADessinerX.size()] ;
 		ptsADessinerY = new int[pointsADessinerX.size()] ;
-
+		
 		for (int i = 0 ; i < pointsADessinerX.size() && i < pointsADessinerY.size() ; i++) {
 			ptsADessinerX[i] = (int) Math.round(pointsADessinerX.get(i)) ;
 			ptsADessinerY[i] = (int) Math.round(pointsADessinerY.get(i)) ;
@@ -298,6 +308,7 @@ public class Polygone extends Obstacle implements Dessinable, Selectionnable, Se
 				c.collision(balle) ;
 			}
 		}
+		Scene.getPoints().ajouterPoints(POINTS_AJOUTES);
 	}
 
 	/**
@@ -327,6 +338,7 @@ public class Polygone extends Obstacle implements Dessinable, Selectionnable, Se
 	@Override
 	public void avancerUnPas(Double deltaT) {
 	}
+	
 	/**
 	 * Méthode permettant de faire un déplacement d'un polygone sur la table.
 	 * @param deplacement Le déplacement de l'obstacle effectué.
@@ -335,6 +347,53 @@ public class Polygone extends Obstacle implements Dessinable, Selectionnable, Se
 	@Override
 	public void setDeplacement(Vecteur3D deplacement) {
 		this.setPosition(this.position.additionne(deplacement));
+	}
+
+	/**
+	 * Méthode permettant d'accéder à la couleur actuelle d'un trait du polygone.
+	 * @return La couleur d'un trait
+	 */
+	// Par Elias Kassas
+	public Color getCouleurTrait() {
+		return couleurTrait ;
+	}
+	
+	/**
+	 * Méthode permettant de changer la couleur actuelle d'un trait du polygone.
+	 * @param couleur : La nouvelle couleur d'un trait.
+	 */
+	// Par Elias Kassas
+	public void setCouleurTrait(Color couleur) {
+		couleurTrait = couleur ;
+		creerLaGeometrie() ;
+	}
+	
+	@Override
+	public void reinitialiser() {
+		// TODO Auto-generated method stub
 		
+	}
+
+	/**
+	 * Méthode servant à établir si deux obstacles sont en intersection.
+	 * @param obst : L'obstacle à vérifier.
+	 */
+	// Par Elias Kassas
+	@Override
+	public boolean intersection(Obstacle obst) {
+		Area airePolygone = new Area(polygone) ;
+		airePolygone.intersect(obst.getAire());
+		return !airePolygone.isEmpty() ;
+	}
+
+	/**
+	 * Méthode permettant d'obtenir l'objet Area du rectangle de la boîte englobante de la plaque 
+	 * magnétique.
+	 * @return L'area du rectangle de la boîte englobante de la plaque magnétique.
+	 */
+	// Par Elias Kassas
+	@Override
+	public Area getAire() {
+		return new Area(polygone) ;
 	}
 }

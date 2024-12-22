@@ -24,7 +24,8 @@ import javax.swing.border.TitledBorder ;
 import javax.swing.event.ChangeEvent ;
 import javax.swing.event.ChangeListener ;
 
-import statistiques.graphique.Graphique ;
+import statistiques.Graphique;
+
 import javax.swing.JToggleButton;
 
 /**
@@ -41,7 +42,9 @@ public class AppSatelliteElias extends JFrame {
 	private JTextField txtTitre ;
 	/** Objet contenant le graphique. **/
 	private Graphique graphique  ;
+	/** Panneau de tests pour le polygone. **/
 	private TestPolygoneA testPolygone ;
+	/** Étiquette pour la couleur. **/
 	private JLabel lblCouleur ;
 
 	/**
@@ -92,10 +95,12 @@ public class AppSatelliteElias extends JFrame {
 		panTestGraphique.add(panPoint) ;
 		
 		JSpinner spnX = new JSpinner() ;
+		spnX.setModel(new SpinnerNumberModel(0.0, 0.0, 1000.0, 0.1)) ;
 		spnX.setBounds(36, 0, 100, 48) ;
 		panPoint.add(spnX) ;
 		
 		JSpinner spnY = new JSpinner() ;
+		spnY.setModel(new SpinnerNumberModel(0.0, 0.0, 1000.0, 0.1)) ;
 		spnY.setBounds(168, 0, 100, 48) ;
 		panPoint.add(spnY) ;
 		

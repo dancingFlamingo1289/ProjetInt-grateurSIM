@@ -1,0 +1,16 @@
+Dernier sauvegardé
+0
+
+Theme :
+	nom = Halloween
+	couleurPrimaire = java.awt.Color[r=255,g=200,b=0]
+	couleurSecondaire = java.awt.Color[r=175,g=122,b=197]
+	couleurTertiaire = java.awt.Color[r=0,g=0,b=0]
+	couleurPolice=java.awt.Color[r=0,g=0,b=0]
+
+
+Score : 	valeurScore = 0,	dateEtHeure = Wed Apr 24 11:11:11 EDT 9999
+Score : 	valeurScore = 0,	dateEtHeure = Wed Apr 24 11:11:11 EDT 9999
+Score : 	valeurScore = 0,	dateEtHeure = Wed Apr 24 11:11:11 EDT 9999
+Score : 	valeurScore = 0,	dateEtHeure = Wed Apr 24 11:11:11 EDT 9999
+Score : 	valeurScore = 0,	dateEtHeure = Wed Apr 24 11:11:11 EDT 9999

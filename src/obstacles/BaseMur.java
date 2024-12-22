@@ -8,7 +8,6 @@ import java.awt.geom.Area;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 import composantDeJeu.Balle;
 import composantDeJeu.Table;
 import interfaces.Dessinable;
@@ -29,14 +28,22 @@ public abstract class BaseMur extends Obstacle implements Dessinable, Selectionn
 	/** Les différents Line2D.Double composant le mur **/
 	private Line2D.Double murBas, murHaut, murDroit, murGauche;
 	/** L'aire du mur **/
-	private transient Area aireMur;
+	protected transient Area aireMur;
 	/** Le rectangle permettant de créer l'aire du mur **/
 	private Rectangle2D.Double rectangleMur;
-	/** La forme transformée résultante des transformations effectuées sur rectangleMur**/
-	private Shape rectangleTransfo;
+	/** La forme transformée résultante des transformations effectuées sur rectangleMur et les différents rectangles du mur **/
+	private Shape rectangleTransfo, rectangleTransfo2, rectangleTransfoCentre;
 	/** Angle de rotation en radian du mur**/
 	private double angle;
-	
+	/** La différence de taille des rectangles intérieurs par rapport au rectaugle de base**/
+	private final int DIFFERENCE = 2;
+	/** La liste des coins du mur **/
+	protected CopyOnWriteArrayList<Cercle> lesCoins;
+	/** Les cercles représentant les coins du mur **/
+	private Cercle cercleGaucheInf,cercleDroitInf,cercleGaucheSup,cercleDroitSup;
+	/** Constante du diamètre des coins**/
+	private final int DIAM_COIN =  1;
+
 	/**
 	 * Constructeur de la classe
 	 * @param position Vecteur position du centre du mur
@@ -52,36 +59,45 @@ public abstract class BaseMur extends Obstacle implements Dessinable, Selectionn
 		this.largeur = largeur;
 		this.angle = angle;
 		lesMurs = new CopyOnWriteArrayList<Line2D.Double>();
+		lesCoins = new CopyOnWriteArrayList<Cercle>();
 	}
 
 	/**
-	 * Méthode qui crée tous les composanta de dessin du mur
+	 * Méthode qui crée tous les composants de dessin du mur
 	 */
-	//https://stackoverflow.com/questions/41898990/find-corners-of-a-rotated-rectangle-given-its-center-point-and-rotation
-	//Le code a été utilisé tel quel, mais la difficulté de cette partie du code n'avait pas été pensé, donc
+	//https://stackoverflow.com/questions/41898990/find-corners-of-a-rotated-rectangle-given-its-center-point-and-rotation Par l'utilisateur Tonia Sanzo
+	//Le code permet de créer des murs autour d'un centre de rectangle quelconque en prenant en compte l'angle de rotation
+	//C'est utiliser pour créer des murs invisibles permettant d'appliquer un effet de collision à la balle
+	//Le code a été utilisé tel quel, mais la difficulté de cette partie du code n'avait pas été pensée, donc
 	//elle n'affecte en rien la charge de travail planifiée
+	//Le code est à 100% utilisé sans modification sauf les noms des variables
 	//Félix Lefrançois
 	@Override
 	protected void creerLaGeometrie() {
 		lesMurs.clear();
+		lesCoins.clear();
 		rectangleMur = new Rectangle2D.Double(0-largeur/2,0-hauteur/2, largeur, hauteur);
 		AffineTransform mat = new AffineTransform();
 		mat.translate(position.getX(), position.getY());
 		mat.rotate(angle);
 		rectangleTransfo = mat.createTransformedShape(rectangleMur);
 		aireMur = new Area(rectangleTransfo);
+		rectangleTransfo2 = mat.createTransformedShape(new Rectangle2D.Double(rectangleMur.getMinX()+DIFFERENCE,rectangleMur.getMinY()+DIFFERENCE,rectangleMur.width-DIFFERENCE*2,
+				rectangleMur.height-DIFFERENCE*2));
+		rectangleTransfoCentre = mat.createTransformedShape(new Rectangle2D.Double(rectangleMur.getMinX()+2*DIFFERENCE,rectangleMur.getMinY()+2*DIFFERENCE,rectangleMur.width-DIFFERENCE*4,
+				rectangleMur.height-DIFFERENCE*4));
 
 		//Voir entête de méthode
-		murHaut = new Line2D.Double(position.getX()-(largeur/2*Math.cos(angle))-(hauteur/2 *Math.sin(angle)),
+		murBas = new Line2D.Double(position.getX()-(largeur/2*Math.cos(angle))-(hauteur/2 *Math.sin(angle)),
 				position.getY()-(largeur/2*Math.sin(angle))+(hauteur/2 *Math.cos(angle)),
 				position.getX()+(largeur/2*Math.cos(angle))-(hauteur/2 *Math.sin(angle)),
 				position.getY()+(largeur/2*Math.sin(angle))+(hauteur/2 *Math.cos(angle)));
-		lesMurs.add(murHaut);
-		murBas = new Line2D.Double(position.getX()-(largeur/2*Math.cos(angle))+(hauteur/2 *Math.sin(angle)),
+		lesMurs.add(murBas);
+		murHaut = new Line2D.Double(position.getX()-(largeur/2*Math.cos(angle))+(hauteur/2 *Math.sin(angle)),
 				position.getY()-(largeur/2*Math.sin(angle))-(hauteur/2 *Math.cos(angle)),
 				position.getX()+(largeur/2*Math.cos(angle))+(hauteur/2 *Math.sin(angle)),
 				position.getY()+(largeur/2*Math.sin(angle))-(hauteur/2 *Math.cos(angle)));
-		lesMurs.add(murBas);
+		lesMurs.add(murHaut);
 		murDroit = new Line2D.Double(position.getX()+(largeur/2*Math.cos(angle))-(hauteur/2 *Math.sin(angle)),
 				position.getY()+(largeur/2*Math.sin(angle))+(hauteur/2 *Math.cos(angle)),
 				position.getX()+(largeur/2*Math.cos(angle))+(hauteur/2 *Math.sin(angle)),
@@ -91,9 +107,18 @@ public abstract class BaseMur extends Obstacle implements Dessinable, Selectionn
 				position.getY()-(largeur/2*Math.sin(angle))+(hauteur/2 *Math.cos(angle)),
 				position.getX()-(largeur/2*Math.cos(angle))+(hauteur/2 *Math.sin(angle)),
 				position.getY()-(largeur/2*Math.sin(angle))-(hauteur/2 *Math.cos(angle)));
-		lesMurs.add(murGauche);		
+		lesMurs.add(murGauche);	
+		
+		 cercleGaucheInf = new Cercle (new Vecteur3D(murBas.x1,murBas.y1,0),DIAM_COIN,Color.BLACK); 
+		 lesCoins.add(cercleGaucheInf);
+		 cercleDroitInf = new Cercle(new Vecteur3D(murBas.x2,murBas.y2,0),DIAM_COIN,Color.BLACK); 
+		 lesCoins.add(cercleDroitInf); 
+		 cercleGaucheSup = new Cercle(new Vecteur3D(murHaut.x1,murHaut.y1,0),DIAM_COIN,Color.BLACK); 
+		 lesCoins.add(cercleGaucheSup); 
+		 cercleDroitSup = new Cercle(new Vecteur3D(murHaut.x2,murHaut.y2,0),DIAM_COIN,Color.BLACK); 
+		 lesCoins.add(cercleDroitSup);
 	}
-	
+
 	/**
 	 * Méthode pour dessiner un mur
 	 * @param g2d Contexte graphique
@@ -107,10 +132,16 @@ public abstract class BaseMur extends Obstacle implements Dessinable, Selectionn
 		g2dPrive.draw(murDroit);;
 		g2dPrive.draw(murGauche);
 		g2dPrive.draw(murHaut);
-		
+
 		g2dPrive.setColor(couleur);
-		
+
+		if (aireMur == null)
+			creerLaGeometrie() ;
 		g2dPrive.fill(aireMur);
+		g2dPrive.setColor(couleur.darker());
+		g2dPrive.fill(rectangleTransfo2);
+		g2dPrive.setColor(couleur.darker().darker());
+		g2dPrive.fill(rectangleTransfoCentre);
 	}
 
 	/**

@@ -1,7 +1,6 @@
 package scene.pagesObstacles.apercu;
 
 import java.awt.Color;
-
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 //import java.beans.PropertyChangeSupport;
@@ -12,7 +11,6 @@ import javax.swing.JPanel;
 
 import math.vecteurs.Vecteur3D;
 import obstacles.Obstacle;
-import obstacles.TrouNoir;
 import obstacles.Ventilateur;
 
 /**Classe pour avoir un apperçu des modification du Ventilateur
@@ -30,7 +28,7 @@ public class ApercuVentilateur extends JPanel {
 	/**Position milieu du panneau **/
 	private  Vecteur3D vecMilieu;
 	/**Position de l'objet sur la table **/
-	private Vecteur3D position = new Vecteur3D(0,0);
+	private Vecteur3D position= new Vecteur3D(50,100);
 	/**Seulement exécuté la première fois.**/
 	private boolean premiereFois=true;
 	/**La couleur du ventilateur **/
@@ -47,7 +45,9 @@ public class ApercuVentilateur extends JPanel {
 	private double largeurDuComposant = 100;
 	/**La hauteur du composant en mètre. **/
 	private double hauteurDuComposant = 50;
-
+	/**La force du ventilateur qui va être placé. **/
+	private double forceVentilateur;
+  
 	/**
 	 * Création de panneau
 	 */
@@ -69,14 +69,13 @@ public class ApercuVentilateur extends JPanel {
 
 		if(premiereFois) {
 			pixelsParMetre= getWidth()/largeurDuComposant;
-			vecMilieu = new Vecteur3D(largeurDuComposant/2, hauteurDuComposant/2-hauteur);
+			vecMilieu = new Vecteur3D(largeurDuComposant/2, hauteurDuComposant/2);
 			premiereFois=false;
 
 		}
 		g2d.drawString("Position sur la table "+ position , 0,(int) 10);
 		g2d.scale(pixelsParMetre, pixelsParMetre) ;
-		ventilateur = new Ventilateur(vecMilieu,hauteur ,largeur ,orientation ,couleur);
-
+		ventilateur = new Ventilateur(vecMilieu,hauteur ,largeur ,forceVentilateur,orientation , couleur);
 		ventilateur.dessiner(g2d);
 
 
@@ -91,7 +90,8 @@ public class ApercuVentilateur extends JPanel {
 		return position;
 	}
 	/**Méthode permettant de changer la position de l'obstacle
-	 * @param position la nouvelle position
+	 * @param x le nouveau x
+	 * @param y le nouveau y
 	 */
 	//Aimé Melançon
 	public void setPosition(double x, double y) {
@@ -159,6 +159,15 @@ public class ApercuVentilateur extends JPanel {
 		this.largeur = largeur;
 		repaint();
 	}
+	/**Méthode permettant de changer la force du ventilateur.
+	 * 
+	 * @param forceVentilateur La nouvelle force du ventilateur
+	 */
+	//Aimé Melançon
+	public void setForceVentilateur(double forceVentilateur) {
+		this.forceVentilateur=forceVentilateur;
+		repaint();
+	}
 	/**
 	 * voici la methode qui permettra de s'ajouter en tant qu'ecouteur
 	 */
@@ -172,8 +181,7 @@ public class ApercuVentilateur extends JPanel {
 	 */
 	//Aimé Melançon
 	public Obstacle getObstacle() {
-		
-		return new Ventilateur(position, hauteur, largeur, orientation, couleur);
+		return new Ventilateur(position, hauteur, largeur, forceVentilateur, orientation, couleur);
 	}
 
 }

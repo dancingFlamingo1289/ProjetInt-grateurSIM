@@ -15,6 +15,7 @@ import javax.swing.SwingConstants;
 public class PanelAPropos extends JPanel {
 	/**Numéro d'identifiant de classe **/
 	private static final long serialVersionUID = -3110011146750233775L;
+	/**Les onglets **/
 	private JTabbedPane tabOnglets ;
 
 	/**
@@ -48,13 +49,19 @@ public class PanelAPropos extends JPanel {
 		JPanel pnlSources = new JPanel();
 		tabOnglets.addTab("Sources", null, pnlSources, null);
 
-		JLabel lblSources = new JLabel( "<html>" + 
-				"<br>Aucune Image pour le moment" +
-				"<br>" + 
-				"<br>" +
+		JLabel lblSources = new JLabel( "<html>" +
+				"<br>Dans les instructions : https://fr.vecteezy.com/art-vectoriel/20610719-un-dessin-au-trait"
+				+ "-<br>continu-de-la-vieille-machine-de-jeu-de-flipper-classique-retro-concept-de-jeu-de-<br>"
+				+ "simulation-vintage-ligne-unique-dessiner-illustration-vectorielle-de-conception-"
+				+ "graphique" +
+				"<br>Nous utilisons le code de l'utilisateur Tonia Sanzo qui peut être trouvé dans le lien <br>"
+				+ "suivant https://stackoverflow.com/questions/41898990/find-corners-of-a-rotated-rectangle-<br>"
+				+ "given-its-center-point-and-rotation"+
+				"<br>et les équations 3 et 4 (pas le code) du lien suivant https://danceswithcode.net/<br>"
+				+ "engineeringnotes/rotations_in_2d/rotations_in_2d.html"+
 				"<br>" + 
 				"<br></html>");
-		lblSources.setVerticalAlignment(SwingConstants.TOP);
+		lblSources.setVerticalAlignment(SwingConstants.CENTER);
 		pnlSources.add(lblSources);
 	}
 
